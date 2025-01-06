@@ -91,8 +91,8 @@
         </div>
       </div>
       <div v-if="isEdit" class="input-row">
-        <span>添加新基金:</span>
-        <!-- <input v-model="fundcode" class="btn" type="text" placeholder="请输入基金代码" /> -->
+        <span>添加新股票:</span>
+        <!-- <input v-model="fundcode" class="btn" type="text" placeholder="请输入股票代码" /> -->
         <el-select
           v-model="fundcode"
           multiple
@@ -102,7 +102,7 @@
           size="mini"
           reserve-keyword
           @visible-change="selectChange"
-          placeholder="请输入基金编码，支持按名称或编码搜索"
+          placeholder="请输入股票编码，支持按名称或编码搜索"
           :remote-method="remoteMethod"
           :loading="loading"
           style="width:300px"
@@ -123,7 +123,7 @@
         <input @click="save" class="btn" type="button" value="确定" />
       </div>
       <p v-if="isEdit" class="tips center">
-        部分新发基金或QDII基金可以搜索到，但可能无法获取估值情况
+        部分新发股票或QDII股票可以搜索到，但可能无法获取估值情况
       </p>
       <div
         v-if="isGetStorage"
@@ -137,8 +137,8 @@
         <table :class="tableHeight">
           <thead>
             <tr>
-              <th class="align-left">基金名称（{{ dataList.length }}）</th>
-              <th v-if="isEdit">基金代码</th>
+              <th class="align-left">股票名称（{{ dataList.length }}）</th>
+              <th v-if="isEdit">股票代码</th>
               <th v-if="showGSZ && !isEdit">估算净值</th>
               <th
                 style="text-align:center"
@@ -294,8 +294,8 @@
           <thead>
             <tr>
               <th class="align-left">
-                <div>基金名称</div>
-                <p>基金编码</p>
+                <div>股票名称</div>
+                <p>股票编码</p>
               </th>
               <th>
                 <div>持有收益率</div>
@@ -354,7 +354,7 @@
       </div>
     </div>
     <p v-if="isEdit" class="tips">
-      特别关注功能介绍：指定一个基金，在程序图标中以角标的形式实时更新，请在设置中选择角标类型与内容。
+      特别关注功能介绍：指定一个股票，在程序图标中以角标的形式实时更新，请在设置中选择角标类型与内容。
     </p>
 
     <div v-show="isEdit" class="input-row gear-input-row">
@@ -1295,7 +1295,7 @@ export default {
       }
     },
     handleDragEnter(e, item, index) {
-      // 基金排序
+      // 股票排序
       if (this.dragging && this.dragging.fundcode && item.fundcode) {
         e.dataTransfer.effectAllowed = "move";
         if (item.fundcode === this.dragging.fundcode) {

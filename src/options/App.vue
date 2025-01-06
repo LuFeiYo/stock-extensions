@@ -22,8 +22,8 @@
               v-model="BadgeContent"
               @change="changeOption($event, 'BadgeContent', true)"
             >
-              <el-radio border :label="1">单个基金</el-radio>
-              <el-radio border :label="2">所有基金</el-radio>
+              <el-radio border :label="1">单个股票</el-radio>
+              <el-radio border :label="2">所有股票</el-radio>
               <el-radio border :label="3">单个指数</el-radio>
             </el-radio-group>
           </div>
@@ -38,7 +38,7 @@
             </el-radio-group>
           </div>
           <p style="margin-top:5px">
-            tips：若选择单个基金，请打开编辑按钮中的特别关注选项；若要计算收益额，需要先打开显示持有金额开关，在编辑中填写基金对应的持有额。
+            tips：若选择单个股票，请打开编辑按钮中的特别关注选项；若要计算收益额，需要先打开显示持有金额开关，在编辑中填写股票对应的持有额。
           </p>
         </li>
         <li>
@@ -69,7 +69,7 @@
 
         <li>
           <div class="list-title">
-            基金列表展示内容设置
+            股票列表展示内容设置
           </div>
           <div class="select-row">
             <span>显示估算净值</span>
@@ -117,7 +117,7 @@
         </li>
         <li>
           <div class="list-title">
-            基金配置信息导入与导出
+            股票配置信息导入与导出
           </div>
           <div style="padding:8px 0 10px">
             <input
@@ -130,7 +130,7 @@
               class="exportBtn"
               ref="configMsg"
               :href="configHref"
-              download="自选基金助手配置文件.json"
+              download="自选股票助手配置文件.json"
             ></a>
             <a href="javascript:;" class="uploadFile btn"
               >导入配置文件
@@ -152,12 +152,12 @@
             <input
               class="btn"
               type="button"
-              value="导出基金列表Excel"
+              value="导出股票列表Excel"
               :disabled="loadingFundList"
               @click="getFundData"
             />
             <a href="javascript:;" class="uploadFile btn"
-              >导入基金列表Excel
+              >导入股票列表Excel
               <input
                 ref="importExcel"
                 type="file"
@@ -167,7 +167,7 @@
             </a>
           </div>
           <p>
-            tips：插件本身支持跟随浏览器账号自动同步，若想手动同步可使用导入导出功能，同步小程序数据可以选择导入导出文本，Excel导入时不用填写基金名称。
+            tips：插件本身支持跟随浏览器账号自动同步，若想手动同步可使用导入导出功能，同步小程序数据可以选择导入导出文本，Excel导入时不用填写股票名称。
           </p>
         </li>
         <li>
@@ -361,10 +361,10 @@ export default {
         .catch((error) => {});
     },
     downloadData() {
-      var tHeader = ["基金代码", "基金名称", "持有份额", "成本价"];
+      var tHeader = ["股票代码", "股票名称", "持有份额", "成本价"];
       var filterVal = ["code", "name", "num", "cost"];
       var data = this.formatJson(filterVal, this.dataList);
-      export_json_to_excel(tHeader, data, "自选基金助手-基金配置");
+      export_json_to_excel(tHeader, data, "自选股票助手-股票配置");
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map((v) => filterVal.map((j) => v[j]));
@@ -386,7 +386,7 @@ export default {
           let arr = [];
           excelData.forEach((item) => {
             let obj = {};
-            obj.code = item["基金代码"];
+            obj.code = item["股票代码"];
             obj.num = item["持有份额"];
             obj.cost = item["成本价"];
             arr.push(obj);
@@ -395,7 +395,7 @@ export default {
             this.initOption();
             chrome.runtime.sendMessage({ type: "refresh" });
             this.$message({
-              message: "恭喜,导入基金列表成功！",
+              message: "恭喜,导入股票列表成功！",
               type: "success",
               center: true,
             });
