@@ -146,6 +146,15 @@
               >
                 成本价
               </th>
+              <th
+                  style="text-align:center"
+                  v-if="
+                  isEdit &&
+                    (showAmount || showGains || showCost || showCostRate)
+                "
+              >
+                持有份额
+              </th>
               <th @click="sortList('amount')" v-if="showAmount" class="pointer">
                 持有额
                 <span :class="sortType.amount" class="down-arrow"></span>
@@ -175,15 +184,7 @@
                 <span :class="sortType.gains" class="down-arrow"></span>
               </th>
               <th v-if="!isEdit">更新时间</th>
-              <th
-                style="text-align:center"
-                v-if="
-                  isEdit &&
-                    (showAmount || showGains || showCost || showCostRate)
-                "
-              >
-                持有份额
-              </th>
+
               <th v-if="isEdit && BadgeContent == 1">特别关注</th>
               <th v-if="isEdit">删除</th>
             </tr>
@@ -209,7 +210,7 @@
                 <span class="hasReplace-tip" v-if="el.hasReplace">✔</span>{{ el.name }}
               </td>
               <td v-if="isEdit">{{ el.fundcode }}</td>
-              <td v-if="showGSZ && !isEdit">{{ el.gsz }}</td>
+              <td v-if="showGSZ && !isEdit">{{ el.currentPrice }}</td>
               <td v-if="isEdit && (showCostRate || showCost)">
                 <input
                   class="btn num"
@@ -219,7 +220,21 @@
                   type="text"
                 />
               </td>
-
+              <th
+                  style="text-align:center"
+                  v-if="
+                  isEdit &&
+                    (showAmount || showGains || showCost || showCostRate)
+                "
+              >
+                <input
+                    class="btn num"
+                    placeholder="输入持有份额"
+                    v-model="el.num"
+                    @input="changeNum(el, index)"
+                    type="text"
+                />
+              </th>
               <td v-if="showAmount">
                 {{
                   parseFloat(el.amount).toLocaleString("zh", {
@@ -250,25 +265,11 @@
               </td>
               <td v-if="!isEdit">
                 {{
-                  el.hasReplace ? el.gztime.substr(5, 5) : el.gztime.substr(10)
+                  new Date().toLocaleTimeString()
                 }}
                 
               </td>
-              <th
-                style="text-align:center"
-                v-if="
-                  isEdit &&
-                    (showAmount || showGains || showCost || showCostRate)
-                "
-              >
-                <input
-                  class="btn num"
-                  placeholder="输入持有份额"
-                  v-model="el.num"
-                  @input="changeNum(el, index)"
-                  type="text"
-                />
-              </th>
+
               <td v-if="isEdit && BadgeContent == 1">
                 <input
                   @click="slt(el.fundcode)"
@@ -892,20 +893,27 @@ export default {
       if (query !== "") {
         this.loading = true;
         let url =
-          "https://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?&m=9&key=" +
+          "https://search-codetable.eastmoney.com/codetable/search/web?client=web&clientType=webSuggest&clientVersion=lastest&cb=jQuery35108596335487712423_1736137120624&keyword=" +
           query +
-          "&_=" +
+          "&pageIndex=1&pageSize=10&securityFilter=&_=" +
           new Date().getTime();
         this.$axios.get(url).then((res) => {
-          this.searchOptions = res.data.Datas.filter((val) => {
+          const dataString = JSON.stringify(res.data);
+          const jsonData = this.handleResponse(dataString);
+          console.log("jsonData", jsonData)
+          this.searchOptions = jsonData.result.filter((val) => {
+            console.log("val", val)
+            console.log("this.fundListM", this.fundListM)
             let hasCode = this.fundListM.some((currentValue, index, array) => {
-              return currentValue.code == val.CODE;
+              console.log("currentValue", currentValue)
+              console.log("val", val)
+              return currentValue.code == val.code;
             });
             return !hasCode;
           }).map((val) => {
             return {
-              value: val.CODE,
-              label: val.NAME,
+              value: val.code,
+              label: val.shortName,
             };
           });
           this.loading = false;
@@ -1024,82 +1032,129 @@ export default {
         this.indFundData = res.data.data.diff;
       });
     },
-    getData(type) {
-      let fundlist = this.fundListM.map((val) => val.code).join(",");
-      let url =
-        "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=200&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=" +
-        this.userId +
-        "&Fcodes=" +
-        fundlist;
-      this.$axios
-        .get(url)
-        .then((res) => {
-          this.loadingList = false;
-          let data = res.data.Datas;
-          this.dataList = [];
-          let dataList = [];
+    async getData(type) {
+      // let fundlist = this.fundListM.map((val) => val.code).join(",");
+      this.dataList = [];
+      for (var element of this.fundListM) {
+        console.log("2222222222222222222222222222：element", JSON.stringify(element));
+        let url =
+            "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=0." + element.code +
+            "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
 
-          data.forEach((val) => {
-            let data = {
-              fundcode: val.FCODE,
-              name: val.SHORTNAME,
-              jzrq: val.PDATE,
-              dwjz: isNaN(val.NAV) ? null : val.NAV,
-              gsz: isNaN(val.GSZ) ? null : val.GSZ,
-              gszzl: isNaN(val.GSZZL) ? 0 : val.GSZZL,
-              gztime: val.GZTIME,
-            };
-            if (val.PDATE != "--" && val.PDATE == val.GZTIME.substr(0, 10)) {
-              data.gsz = val.NAV;
-              data.gszzl = isNaN(val.NAVCHGRT) ? 0 : val.NAVCHGRT;
-              data.hasReplace = true;
-            }
+        await this.$axios.get(url)
+            .then((res) => {
+              var response = this.handleResponse(res.data);
+              console.log("2：response", JSON.stringify(response));
+              console.log("3：response.data", response.data);
 
-            let slt = this.fundListM.filter(
-              (item) => item.code == data.fundcode
-            );
-            data.num = slt[0].num;
-            data.cost = slt[0].cost;
-            data.amount = this.calculateMoney(data);
-            data.gains = this.calculate(data, data.hasReplace);
-            data.costGains = this.calculateCost(data);
-            data.costGainsRate = this.calculateCostRate(data);
+              if (!response.data) {
+                console.log(element.code + "：4：111111111111111111");
+                let url2 =
+                    "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=1." + element.code +
+                    "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
+                return this.$axios.get(url2).then((res) => {
+                  response = this.handleResponse(res.data);
+                  console.log("5: " + element.code + "：++++++++++++++++++response", response);
+                  return response;
+                });
+              } else {
+                return response;
+              }
+            })
+            .then((response) => {
+              // 确保所有异步操作完成后才更新状态和打印
+              this.loadingList = false;
+              console.log("6:=================response", JSON.stringify(response))
 
-            if (data.fundcode == this.RealtimeFundcode) {
-              if (this.showBadge == 1) {
-                if (this.BadgeContent == 1) {
-                  chrome.runtime.sendMessage({
-                    type: "refreshBadge",
-                    data: data,
-                  });
+              let data = {
+                fundcode: response?.data.code,
+                name: response?.data.name,
+                jzrq: response?.data.klines[0].split(",")[0],
+                dwjz: response?.data.klines[0].split(",")[2],
+                lastPrice:response?.data.klines[0].split(",")[2],
+                currentPrice:response?.data.klines[1].split(",")[2],
+                gsz: this.currentPrice,
+                // 估算收益率
+                // gszzl: isNaN(val.GSZZL) ? 0 : val.GSZZL,
+                gztime: response?.data.klines[0].split(",")[0],
+              };
+              // if (response?.data.klines[0].split(",")[0] != "--" && response?.data.klines[0].split(",")[0] == val.GZTIME.substr(0, 10)) {
+              // data.gsz = val.NAV;
+              // data.gszzl = isNaN(val.NAVCHGRT) ? 0 : val.NAVCHGRT;
+              // data.hasReplace = true;
+              // }
+              console.log("7:=====================================")
+              console.log("8:this.fundListM", JSON.stringify(this.fundListM))
+              console.log("9:data", JSON.stringify(data))
+              console.log("10:=====================================")
+              let slt = this.fundListM.filter(
+                  (item) => item.code == data.fundcode
+              );
+              data.num = slt[0].num;
+              data.cost = slt[0].cost;
+              data.amount = this.calculateMoney(data);
+              // 今日收益金额
+              data.gains = this.calculate(data, data.hasReplace);
+              // 持有收益额
+              data.costGains = this.calculateCost(data);
+              // 持有收益率
+              data.costGainsRate = this.calculateCostRate(data);
+              // 涨跌幅
+              data.gszzl = ((data.currentPrice / data.lastPrice - 1) * 100).toFixed(2);
+              console.log("this.RealtimeFundcode)", this.RealtimeFundcode)
+              if (data.fundcode == this.RealtimeFundcode) {
+                if (this.showBadge == 1) {
+                  console.log("aaaaaaaaaaaaaaaaaaaaaaaaaa")
+                  if (this.BadgeContent == 1) {
+                    console.log("zzzzzzzzzzzzzzzzzzzzzzzz")
+                    chrome.runtime.sendMessage({
+                      type: "refreshBadge",
+                      data: data,
+                    });
+                  }
                 }
               }
-            }
 
-            dataList.push(data);
+              this.dataList.push(data);
+
+
+            })
+            .catch((error) => {
+              console.error("Error fetching data:", error);
+              this.loadingList = false;
+            });
+      }
+      if (this.showBadge == 1) {
+        if (this.BadgeContent == 2) {
+          chrome.runtime.sendMessage({
+            type: "refreshBadgeAllGains",
+            data: data,
           });
-          if (this.showBadge == 1) {
-            if (this.BadgeContent == 2) {
-              chrome.runtime.sendMessage({
-                type: "refreshBadgeAllGains",
-                data: data,
-              });
-            }
-          }
+        }
+      }
 
-          this.dataListDft = [...dataList];
-          if (type == "add") {
-            this.dataList = dataList;
-          } else if (this.sortTypeObj.type != "none") {
-            this.sortType[this.sortTypeObj.name] = this.sortTypeObj.type;
-            this.dataList = dataList.sort(
-              this.compare(this.sortTypeObj.name, this.sortTypeObj.type)
-            );
-          } else {
-            this.dataList = dataList;
-          }
-        })
-        .catch((error) => {});
+      this.dataListDft = [...dataList];
+      if (type == "add") {
+        this.dataList = dataList;
+      } else if (this.sortTypeObj.type != "none") {
+        this.sortType[this.sortTypeObj.name] = this.sortTypeObj.type;
+        this.dataList = dataList.sort(
+            this.compare(this.sortTypeObj.name, this.sortTypeObj.type)
+        );
+      } else {
+        this.dataList = dataList;
+      }
+    },
+
+    handleResponse(responseString) {
+      // 1. 找到函数名后的第一个括号位置
+      const startIdx = responseString.indexOf('(') + 1;
+      const endIdx = responseString.lastIndexOf(')');
+      // 2. 使用 substring 截取 JSON 字符串部分
+      let jsonString = responseString.substring(startIdx, endIdx).replaceAll('\"', '"');
+      jsonString = jsonString.replace(/\\\"/g, '"');;
+      const jsonData = JSON.parse(jsonString);
+      return jsonData;
     },
     changeNum(item, ind) {
       debounce(() => {
@@ -1140,24 +1195,25 @@ export default {
       });
     },
     calculateMoney(val) {
-      let sum = (val.dwjz * val.num).toFixed(2);
+      let sum = (val.currentPrice * val.num).toFixed(2);
       return sum;
     },
     calculate(val, hasReplace) {
       var sum = 0;
       let num = val.num ? val.num : 0;
-      if (hasReplace) {
-        sum = ((val.dwjz - val.dwjz / (1 + val.gszzl * 0.01)) * num).toFixed(2);
-      } else {
-        if (val.gsz) {
-          sum = ((val.gsz - val.dwjz) * num).toFixed(2);
-        }
-      }
+      sum = ((val.currentPrice - val.lastPrice) * num).toFixed(2);
+      // if (hasReplace) {
+      //   sum = ((val.dwjz - val.dwjz / (1 + val.gszzl * 0.01)) * num).toFixed(2);
+      // } else {
+      //   if (val.gsz) {
+      //     sum = ((val.gsz - val.dwjz) * num).toFixed(2);
+      //   }
+      // }
       return sum;
     },
     calculateCost(val) {
       if (val.cost) {
-        let sum = ((val.dwjz - val.cost) * val.num).toFixed(2);
+        let sum = ((val.currentPrice - val.cost) * val.num).toFixed(2);
         return sum;
       } else {
         return 0;
@@ -1165,7 +1221,7 @@ export default {
     },
     calculateCostRate(val) {
       if (val.cost && val.cost != 0) {
-        let sum = (((val.dwjz - val.cost) / val.cost) * 100).toFixed(2);
+        let sum = (((val.currentPrice - val.cost) / val.cost) * 100).toFixed(2);
         return sum;
       } else {
         return 0;

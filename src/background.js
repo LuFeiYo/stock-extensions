@@ -410,6 +410,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     let allAmount = 0;
     let allGains = 0;
     let sumNum = 0;
+    console.log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
     request.data.forEach((val) => {
       let slt = fundListM.filter(
         (item) => item.code == val.FCODE
