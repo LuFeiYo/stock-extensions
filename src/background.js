@@ -118,6 +118,8 @@ var formatNum = val => {
     return num.toFixed(0);
   } else if (absNum < 10000) {
     return (num / 1000).toFixed(1) + 'k';
+  } else if (absNum < 100000) {
+    return (num / 10000).toFixed(1) + 'w';
   } else if (absNum < 1000000) {
     return (num / 1000).toFixed(0) + 'k';
   } else if (absNum < 10000000) {
@@ -410,26 +412,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     let allAmount = 0;
     let allGains = 0;
     let sumNum = 0;
-    console.log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")
     request.data.forEach((val) => {
-      let slt = fundListM.filter(
-        (item) => item.code == val.FCODE
-      );
-      let num = slt[0].num ? slt[0].num : 0;
-      let NAV = isNaN(val.NAV) ? null : val.NAV;
-      allAmount += NAV * num;
-      var sum = 0;
-      if (val.PDATE != "--" && val.PDATE == val.GZTIME.substr(0, 10)) {
-        let NAVCHGRT = isNaN(val.NAVCHGRT) ? 0 : val.NAVCHGRT;
-        sum = (NAV - NAV / (1 + NAVCHGRT * 0.01)) * num
-      } else {
-        let gsz = isNaN(val.GSZ) ? null : val.GSZ;
-        if (gsz != null && NAV != null) {
-          sum = (gsz - NAV) * num;
-        }
-
-      }
-      allGains += sum;
+      // let slt = fundListM.filter(
+      //   (item) => item.code == val.FCODE
+      // );
+      // let num = slt[0].num ? slt[0].num : 0;
+      // let NAV = isNaN(val.NAV) ? null : val.NAV;
+      // allAmount += NAV * num;
+      // var sum = 0;
+      // if (val.PDATE != "--" && val.PDATE == val.GZTIME.substr(0, 10)) {
+      //   let NAVCHGRT = isNaN(val.NAVCHGRT) ? 0 : val.NAVCHGRT;
+      //   sum = (NAV - NAV / (1 + NAVCHGRT * 0.01)) * num
+      // } else {
+      //   let gsz = isNaN(val.GSZ) ? null : val.GSZ;
+      //   if (gsz != null && NAV != null) {
+      //     sum = (gsz - NAV) * num;
+      //   }
+      //
+      // }
+      allAmount += parseFloat(val.amount);
+      allGains += parseFloat(val.gains);
 
     });
     let textStr = null;

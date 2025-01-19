@@ -484,7 +484,6 @@ export default {
 
           if (res.holiday) {
             this.holiday = res.holiday;
-            console.log(this.holiday);
           } else {
             this.getHoliday();
           }

@@ -423,7 +423,6 @@ export default {
       let url = `https://push2.eastmoney.com/api/qt/stock/trends2/get?secid=${this.code}&fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11,f12,f13&fields2=f51,f53,f56,f58&iscr=0&iscca=0&ndays=1&forcect=1`;
 
       this.$axios.get(url).then((res) => {
-        // console.log(res);
         this.loading = false;
         this.DWJZ = res.data.data.prePrice;
         let dataList = res.data.data.trends.map((item) => item.split(","));
@@ -434,7 +433,6 @@ export default {
         this.option.series[2].data = dataList.map((item) => +item[2]);
 
         let firstDate = dataList[0][0].substr(11, 5);
-        // console.log(firstDate);
         this.isHK = false;
 
         if (this.codeData.f13 == 1 || this.codeData.f13 == 0) {

@@ -512,7 +512,6 @@ export default {
       this.$axios.get(url).then((res) => {
         this.loading = false;
         let data = res.data.data;
-        // console.log(data, data.n2s);
 
         let dataList = data.n2s;
         let data1 = [];

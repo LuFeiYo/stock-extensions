@@ -108,3 +108,5 @@ src/popup/App copy.vue
 .DS_Store
 
 /.idea
+
+/dist

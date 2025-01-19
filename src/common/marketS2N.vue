@@ -382,7 +382,6 @@ export default {
       this.$axios.get(url).then((res) => {
         this.loading = false;
         let data = res.data.data;
-        // console.log(data.s2nDate, data.s2n);
 
         let dataList = data.s2n;
         let data1 = [];

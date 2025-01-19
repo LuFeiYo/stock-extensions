@@ -267,7 +267,7 @@
                 {{
                   new Date().toLocaleTimeString()
                 }}
-                
+
               </td>
 
               <td v-if="isEdit && BadgeContent == 1">
@@ -900,13 +900,8 @@ export default {
         this.$axios.get(url).then((res) => {
           const dataString = JSON.stringify(res.data);
           const jsonData = this.handleResponse(dataString);
-          console.log("jsonData", jsonData)
           this.searchOptions = jsonData.result.filter((val) => {
-            console.log("val", val)
-            console.log("this.fundListM", this.fundListM)
             let hasCode = this.fundListM.some((currentValue, index, array) => {
-              console.log("currentValue", currentValue)
-              console.log("val", val)
               return currentValue.code == val.code;
             });
             return !hasCode;
@@ -1036,7 +1031,6 @@ export default {
       // let fundlist = this.fundListM.map((val) => val.code).join(",");
       this.dataList = [];
       for (var element of this.fundListM) {
-        console.log("2222222222222222222222222222：element", JSON.stringify(element));
         let url =
             "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=0." + element.code +
             "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
@@ -1044,17 +1038,12 @@ export default {
         await this.$axios.get(url)
             .then((res) => {
               var response = this.handleResponse(res.data);
-              console.log("2：response", JSON.stringify(response));
-              console.log("3：response.data", response.data);
-
               if (!response.data) {
-                console.log(element.code + "：4：111111111111111111");
                 let url2 =
                     "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=1." + element.code +
                     "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
                 return this.$axios.get(url2).then((res) => {
                   response = this.handleResponse(res.data);
-                  console.log("5: " + element.code + "：++++++++++++++++++response", response);
                   return response;
                 });
               } else {
@@ -1064,7 +1053,6 @@ export default {
             .then((response) => {
               // 确保所有异步操作完成后才更新状态和打印
               this.loadingList = false;
-              console.log("6:=================response", JSON.stringify(response))
 
               let data = {
                 fundcode: response?.data.code,
@@ -1083,10 +1071,6 @@ export default {
               // data.gszzl = isNaN(val.NAVCHGRT) ? 0 : val.NAVCHGRT;
               // data.hasReplace = true;
               // }
-              console.log("7:=====================================")
-              console.log("8:this.fundListM", JSON.stringify(this.fundListM))
-              console.log("9:data", JSON.stringify(data))
-              console.log("10:=====================================")
               let slt = this.fundListM.filter(
                   (item) => item.code == data.fundcode
               );
@@ -1101,12 +1085,9 @@ export default {
               data.costGainsRate = this.calculateCostRate(data);
               // 涨跌幅
               data.gszzl = ((data.currentPrice / data.lastPrice - 1) * 100).toFixed(2);
-              console.log("this.RealtimeFundcode)", this.RealtimeFundcode)
               if (data.fundcode == this.RealtimeFundcode) {
                 if (this.showBadge == 1) {
-                  console.log("aaaaaaaaaaaaaaaaaaaaaaaaaa")
                   if (this.BadgeContent == 1) {
-                    console.log("zzzzzzzzzzzzzzzzzzzzzzzz")
                     chrome.runtime.sendMessage({
                       type: "refreshBadge",
                       data: data,
@@ -1128,21 +1109,21 @@ export default {
         if (this.BadgeContent == 2) {
           chrome.runtime.sendMessage({
             type: "refreshBadgeAllGains",
-            data: data,
+            data: this.dataList,
           });
         }
       }
 
-      this.dataListDft = [...dataList];
+      this.dataListDft = [...this.dataList];
       if (type == "add") {
         this.dataList = dataList;
       } else if (this.sortTypeObj.type != "none") {
         this.sortType[this.sortTypeObj.name] = this.sortTypeObj.type;
-        this.dataList = dataList.sort(
+        this.dataList = this.dataList.sort(
             this.compare(this.sortTypeObj.name, this.sortTypeObj.type)
         );
       } else {
-        this.dataList = dataList;
+        this.dataList = this.dataList;
       }
     },
 
