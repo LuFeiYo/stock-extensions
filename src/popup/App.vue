@@ -1031,39 +1031,39 @@ export default {
       // let fundlist = this.fundListM.map((val) => val.code).join(",");
       this.dataList = [];
       for (var element of this.fundListM) {
-        let url =
-            "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=0." + element.code +
-            "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
-
+        let stockCode = element.code;
+        var url;
+        if (stockCode.startsWith("000") || stockCode.startsWith("002") || stockCode.startsWith("200") || stockCode.startsWith("300")
+            || stockCode.startsWith("159")) {
+          url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=0." + element.code +
+              "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
+        } else if (stockCode.length == 5) {
+          url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=116." + element.code +
+              "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
+        } else {
+          url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=1." + element.code +
+              "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
+        }
         await this.$axios.get(url)
             .then((res) => {
               var response = this.handleResponse(res.data);
-              if (!response.data) {
-                let url2 =
-                    "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=1." + element.code +
-                    "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
-                return this.$axios.get(url2).then((res) => {
-                  response = this.handleResponse(res.data);
-                  return response;
-                });
-              } else {
-                return response;
-              }
-            })
-            .then((response) => {
               // 确保所有异步操作完成后才更新状态和打印
               this.loadingList = false;
 
               let data = {
                 fundcode: response?.data.code,
                 name: response?.data.name,
+                // 上一交易日 日期
                 jzrq: response?.data.klines[0].split(",")[0],
+                // 上一交易日 单位净值
                 dwjz: response?.data.klines[0].split(",")[2],
                 lastPrice:response?.data.klines[0].split(",")[2],
                 currentPrice:response?.data.klines[1].split(",")[2],
+                // 今日 估算净值
                 gsz: this.currentPrice,
-                // 估算收益率
+                // 今日 估算收益率
                 // gszzl: isNaN(val.GSZZL) ? 0 : val.GSZZL,
+                // 估算时间
                 gztime: response?.data.klines[0].split(",")[0],
               };
               // if (response?.data.klines[0].split(",")[0] != "--" && response?.data.klines[0].split(",")[0] == val.GZTIME.substr(0, 10)) {
@@ -1097,13 +1097,7 @@ export default {
               }
 
               this.dataList.push(data);
-
-
             })
-            .catch((error) => {
-              console.error("Error fetching data:", error);
-              this.loadingList = false;
-            });
       }
       if (this.showBadge == 1) {
         if (this.BadgeContent == 2) {
