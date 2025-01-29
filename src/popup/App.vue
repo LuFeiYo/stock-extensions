@@ -1,44 +1,45 @@
 <template>
   <div
-    id="app"
-    class="container"
-    ref="app"
-    :class="containerClass"
-    :style="[zoom, grayscale, opacity]"
+      id="app"
+      class="container"
+      ref="app"
+      :class="containerClass"
+      :style="[zoom, grayscale, opacity]"
   >
     <div>
       <div
-        class="tab-row"
-        v-if="isGetStorage"
-        v-loading="loadingInd"
-        :element-loading-background="
+          class="tab-row"
+          v-if="isGetStorage"
+          v-loading="loadingInd"
+          :element-loading-background="
           darkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)'
         "
-        :style="seciList.length > 0 ? { minHeight: '55px' } : {}"
+          :style="seciList.length > 0 ? { minHeight: '55px' } : {}"
       >
         <div
-          v-for="(el, index) in indFundData"
-          :draggable="isEdit"
-          class="tab-col indFund"
-          :class="drag"
-          :key="el.f12"
-          @click.stop="!isEdit && indDetail(el)"
-          @dragstart="handleDragStart($event, el)"
-          @dragover.prevent="handleDragOver($event, el)"
-          @dragenter="handleDragEnter($event, el, index)"
-          @dragend="handleDragEnd($event, el)"
+            v-for="(el, index) in indFundData"
+            :draggable="isEdit"
+            class="tab-col indFund"
+            :class="drag"
+            :key="el.f12"
+            @click.stop="!isEdit && indDetail(el)"
+            @dragstart="handleDragStart($event, el)"
+            @dragover.prevent="handleDragOver($event, el)"
+            @dragenter="handleDragEnter($event, el, index)"
+            @dragend="handleDragEnd($event, el)"
         >
           <h5>
             {{ el.f14 }}
             <span
-              v-if="isEdit"
-              @click="dltIndFund(index)"
-              class="dltBtn edit red btn"
-              >✖</span
+                v-if="isEdit"
+                @click="dltIndFund(index)"
+                class="dltBtn edit red btn"
+            >✖</span
             >
           </h5>
           <p :class="el.f3 >= 0 ? 'up' : 'down'">
-            {{ el.f2
+            {{
+              el.f2
             }}<input
               v-if="isEdit && BadgeContent == 3"
               @click="sltInd(el)"
@@ -47,7 +48,7 @@
               style="margin-left:5px"
               value="✔"
               type="button"
-            />
+          />
           </p>
           <p :class="el.f3 >= 0 ? 'up' : 'down'">
             {{ el.f4 }}&nbsp;&nbsp;{{ el.f3 }}%
@@ -55,142 +56,150 @@
         </div>
         <div v-if="isEdit && indFundData.length < 4" class="tab-col">
           <div
-            v-if="!showAddSeciInput"
-            class="addSeci"
-            @click="() => (showAddSeciInput = true)"
+              v-if="!showAddSeciInput"
+              class="addSeci"
+              @click="() => (showAddSeciInput = true)"
           >
             添加
           </div>
           <div v-else>
             <div style="padding-top:2px">
               <el-select
-                size="mini"
-                :popper-append-to-body="false"
-                v-model="sltSeci"
-                style="width:110px"
-                placeholder="请选择"
+                  size="mini"
+                  :popper-append-to-body="false"
+                  v-model="sltSeci"
+                  style="width:110px"
+                  placeholder="请选择"
               >
                 <el-option
-                  v-for="item in userSeciList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                    v-for="item in userSeciList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
                 ></el-option>
               </el-select>
             </div>
             <div style="margin-top:4px">
               <input
-                class="btn"
-                type="button"
-                value="取消"
-                @click="() => (showAddSeciInput = false)"
+                  class="btn"
+                  type="button"
+                  value="取消"
+                  @click="() => (showAddSeciInput = false)"
               />
-              <input class="btn" type="button" value="确定" @click="saveSeci" />
+              <input class="btn" type="button" value="确定" @click="saveSeci"/>
             </div>
           </div>
         </div>
       </div>
       <div v-if="isEdit" class="input-row">
         <span>添加新股票:</span>
+        <el-select v-model="investmentProductsType" placeholder="请选择">
+          <el-option
+              v-for="item in typeOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+          </el-option>
+        </el-select>
         <!-- <input v-model="fundcode" class="btn" type="text" placeholder="请输入股票代码" /> -->
         <el-select
-          v-model="fundcode"
-          multiple
-          filterable
-          :popper-append-to-body="false"
-          remote
-          size="mini"
-          reserve-keyword
-          @visible-change="selectChange"
-          placeholder="请输入股票编码，支持按名称或编码搜索"
-          :remote-method="remoteMethod"
-          :loading="loading"
-          style="width:300px"
+            v-model="fundcode"
+            multiple
+            filterable
+            :popper-append-to-body="false"
+            remote
+            size="mini"
+            reserve-keyword
+            @visible-change="selectChange"
+            placeholder="请输入股票编码，支持按名称或编码搜索"
+            :remote-method="remoteMethod"
+            :loading="loading"
+            style="width:300px"
         >
           <el-option
-            v-for="item in searchOptions"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+              v-for="item in searchOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
           >
             <span style="float: left">{{ item.label }}</span>
             <span
-              style="float: right; color: #8492a6; font-size: 13px;margim-right:20px;padding-right:15px"
-              >{{ item.value }}</span
+                style="float: right; color: #8492a6; font-size: 13px;margim-right:20px;padding-right:15px"
+            >{{ item.value }}</span
             >
           </el-option>
         </el-select>
-        <input @click="save" class="btn" type="button" value="确定" />
+        <input @click="save" class="btn" type="button" value="确定"/>
       </div>
       <p v-if="isEdit" class="tips center">
         部分新发股票或QDII股票可以搜索到，但可能无法获取估值情况
       </p>
       <div
-        v-if="isGetStorage"
-        v-loading="loadingList"
-        :element-loading-background="
+          v-if="isGetStorage"
+          v-loading="loadingList"
+          :element-loading-background="
           darkMode ? 'rgba(0, 0, 0, 0.9)' : 'rgba(255, 255, 255, 0.9)'
         "
-        class="table-row"
-        style="min-height:160px"
+          class="table-row"
+          style="min-height:160px"
       >
         <table :class="tableHeight">
           <thead>
-            <tr>
-              <th class="align-left">股票名称（{{ dataList.length }}）</th>
-              <th v-if="isEdit">股票代码</th>
-              <th v-if="showGSZ && !isEdit">估算净值</th>
-              <th
+          <tr>
+            <th class="align-left">股票名称（{{ dataList.length }}）</th>
+            <th v-if="isEdit">股票代码</th>
+            <th v-if="showGSZ && !isEdit">估算净值</th>
+            <th
                 style="text-align:center"
                 v-if="isEdit && (showCostRate || showCost)"
-              >
-                成本价
-              </th>
-              <th
-                  style="text-align:center"
-                  v-if="
+            >
+              成本价
+            </th>
+            <th
+                style="text-align:center"
+                v-if="
                   isEdit &&
                     (showAmount || showGains || showCost || showCostRate)
                 "
-              >
-                持有份额
-              </th>
-              <th @click="sortList('amount')" v-if="showAmount" class="pointer">
-                持有额
-                <span :class="sortType.amount" class="down-arrow"></span>
-              </th>
-              <th
+            >
+              持有份额
+            </th>
+            <th @click="sortList('amount')" v-if="showAmount" class="pointer">
+              持有额
+              <span :class="sortType.amount" class="down-arrow"></span>
+            </th>
+            <th
                 @click="sortList('costGains')"
                 v-if="showCost"
                 class="pointer"
-              >
-                持有收益
-                <span :class="sortType.costGains" class="down-arrow"></span>
-              </th>
-              <th
+            >
+              持有收益
+              <span :class="sortType.costGains" class="down-arrow"></span>
+            </th>
+            <th
                 @click="sortList('costGainsRate')"
                 v-if="showCostRate"
                 class="pointer"
-              >
-                持有收益率
-                <span :class="sortType.costGainsRate" class="down-arrow"></span>
-              </th>
-              <th @click="sortList('gszzl')" class="pointer">
-                涨跌幅
-                <span :class="sortType.gszzl" class="down-arrow"></span>
-              </th>
-              <th @click="sortList('gains')" v-if="showGains" class="pointer">
-                估算收益
-                <span :class="sortType.gains" class="down-arrow"></span>
-              </th>
-              <th v-if="!isEdit">更新时间</th>
+            >
+              持有收益率
+              <span :class="sortType.costGainsRate" class="down-arrow"></span>
+            </th>
+            <th @click="sortList('gszzl')" class="pointer">
+              涨跌幅
+              <span :class="sortType.gszzl" class="down-arrow"></span>
+            </th>
+            <th @click="sortList('gains')" v-if="showGains" class="pointer">
+              估算收益
+              <span :class="sortType.gains" class="down-arrow"></span>
+            </th>
+            <th v-if="!isEdit">更新时间</th>
 
-              <th v-if="isEdit && BadgeContent == 1">特别关注</th>
-              <th v-if="isEdit">删除</th>
-            </tr>
+            <th v-if="isEdit && BadgeContent == 1">特别关注</th>
+            <th v-if="isEdit">删除</th>
+          </tr>
           </thead>
           <tbody>
-            <tr
+          <tr
               v-for="(el, index) in dataList"
               :key="el.fundcode"
               :draggable="isEdit"
@@ -199,95 +208,112 @@
               @dragover.prevent="handleDragOver($event, el)"
               @dragenter="handleDragEnter($event, el, index)"
               @dragend="handleDragEnd($event, el)"
-            >
-              <td
+          >
+            <td
                 :class="
                   isEdit ? 'fundName-noclick align-left' : 'fundName align-left'
                 "
                 :title="el.name"
                 @click.stop="!isEdit && fundDetail(el)"
-              >
-                <span class="hasReplace-tip" v-if="el.hasReplace">✔</span>{{ el.name }}
-              </td>
-              <td v-if="isEdit">{{ el.fundcode }}</td>
-              <td v-if="showGSZ && !isEdit">{{ el.currentPrice }}</td>
-              <td v-if="isEdit && (showCostRate || showCost)">
-                <input
+            >
+              <el-select v-model="el.investmentProductsType" placeholder="请选择"
+                         v-if="isEdit" size="mini" @change="changeInvestmentProductsType(el, index)">
+                <el-option
+                    v-for="item in typeOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+              </el-select>
+              <span class="hasReplace-tip"
+                    :class="{
+                        'stock-color': el.investmentProductsType === 'stock',
+                        'fund-color': el.investmentProductsType !== 'stock'
+                      }"
+                    v-if="el.investmentProductsType">
+                  {{ el.investmentProductsType === 'stock' ? '股' : '基' }}
+                </span>
+              <span class="hasReplace-tip" v-if="el.hasReplace">✔</span>{{ el.name }}
+            </td>
+            <td v-if="isEdit">{{ el.fundcode }}</td>
+            <td v-if="showGSZ && !isEdit">{{ el.currentPrice }}</td>
+            <td v-if="isEdit && (showCostRate || showCost)">
+              <input
                   class="btn num"
                   placeholder="持仓成本价"
                   v-model="el.cost"
                   @input="changeCost(el, index)"
                   type="text"
-                />
-              </td>
-              <th
-                  style="text-align:center"
-                  v-if="
+              />
+            </td>
+            <th
+                style="text-align:center"
+                v-if="
                   isEdit &&
                     (showAmount || showGains || showCost || showCostRate)
                 "
-              >
-                <input
-                    class="btn num"
-                    placeholder="输入持有份额"
-                    v-model="el.num"
-                    @input="changeNum(el, index)"
-                    type="text"
-                />
-              </th>
-              <td v-if="showAmount">
-                {{
-                  parseFloat(el.amount).toLocaleString("zh", {
-                    minimumFractionDigits: 2,
-                  })
-                }}
-              </td>
-              <td v-if="showCost" :class="el.costGains >= 0 ? 'up' : 'down'">
-                {{
-                  parseFloat(el.costGains).toLocaleString("zh", {
-                    minimumFractionDigits: 2,
-                  })
-                }}
-              </td>
-              <td
+            >
+              <input
+                  class="btn num"
+                  placeholder="输入持有份额"
+                  v-model="el.num"
+                  @input="changeNum(el, index)"
+                  type="text"
+              />
+            </th>
+            <td v-if="showAmount">
+              {{
+                parseFloat(el.amount).toLocaleString("zh", {
+                  minimumFractionDigits: 2,
+                })
+              }}
+            </td>
+            <td v-if="showCost" :class="el.costGains >= 0 ? 'up' : 'down'">
+              {{
+                parseFloat(el.costGains).toLocaleString("zh", {
+                  minimumFractionDigits: 2,
+                })
+              }}
+            </td>
+            <td
                 v-if="showCostRate"
                 :class="el.costGainsRate >= 0 ? 'up' : 'down'"
-              >
-                {{ el.cost > 0 ? el.costGainsRate + "%" : "" }}
-              </td>
-              <td :class="el.gszzl >= 0 ? 'up' : 'down'">{{ el.gszzl }}%</td>
-              <td v-if="showGains" :class="el.gains >= 0 ? 'up' : 'down'">
-                {{
-                  parseFloat(el.gains).toLocaleString("zh", {
-                    minimumFractionDigits: 2,
-                  })
-                }}
-              </td>
-              <td v-if="!isEdit">
-                {{
-                  new Date().toLocaleTimeString()
-                }}
+            >
+              {{ el.cost > 0 ? el.costGainsRate + "%" : "" }}
+            </td>
+            <td :class="el.gszzl >= 0 ? 'up' : 'down'">{{ el.gszzl }}%</td>
+            <td v-if="showGains" :class="el.gains >= 0 ? 'up' : 'down'">
+              {{
+                parseFloat(el.gains).toLocaleString("zh", {
+                  minimumFractionDigits: 2,
+                })
+              }}
+            </td>
+            <td v-if="!isEdit">
+              {{
+                new Date().toLocaleTimeString()
+              }}
 
-              </td>
+            </td>
 
-              <td v-if="isEdit && BadgeContent == 1">
-                <input
+            <td v-if="isEdit && BadgeContent == 1">
+              <input
                   @click="slt(el.fundcode)"
                   :class="el.fundcode == RealtimeFundcode ? 'slt' : ''"
                   class="btn edit"
                   value="✔"
                   type="button"
-                />
-              </td>
-              <td v-if="isEdit">
-                <input
+              />
+            </td>
+            <td v-if="isEdit">
+              <input
                   @click="dlt(el.fundcode)"
                   class="btn red edit"
                   value="✖"
                   type="button"
-                />
-              </td>
-            </tr>
+              />
+            </td>
+          </tr>
           </tbody>
         </table>
 
@@ -360,72 +386,72 @@
 
     <div v-show="isEdit" class="input-row gear-input-row">
       <el-switch
-        v-model="darkMode"
-        @change="changeDarkMode"
-        active-color="#484848"
-        inactive-color="#13ce66"
-        inactive-text="标准模式"
-        active-text="暗色模式"
+          v-model="darkMode"
+          @change="changeDarkMode"
+          active-color="#484848"
+          inactive-color="#13ce66"
+          inactive-text="标准模式"
+          active-text="暗色模式"
       >
       </el-switch>
       <span class="slider-title">界面灰度：</span>
       <el-slider
-        class="slider"
-        v-model="grayscaleValue"
-        @change="changeGrayscaleValue"
-        :format-tooltip="formatTooltip"
+          class="slider"
+          v-model="grayscaleValue"
+          @change="changeGrayscaleValue"
+          :format-tooltip="formatTooltip"
       ></el-slider>
       <span class="slider-title">透明度：</span>
       <el-slider
-        class="slider"
-        :max="90"
-        v-model="opacityValue"
-        @change="changeOpacityValue"
-        :format-tooltip="formatTooltip"
+          class="slider"
+          :max="90"
+          v-model="opacityValue"
+          @change="changeOpacityValue"
+          :format-tooltip="formatTooltip"
       ></el-slider>
       <!-- <input v-model="containerWidth" type="number" />
       <input v-model="containerHeight" type="number" /> -->
     </div>
 
     <div class="input-row">
-      <input class="btn" type="button" @click="market" value="行情中心" />
+      <input class="btn" type="button" @click="market" value="行情中心"/>
       <input
-        class="btn"
-        v-if="isDuringDate"
-        type="button"
-        :value="isLiveUpdate ? '暂停更新' : '实时更新'"
-        :title="
+          class="btn"
+          v-if="isDuringDate"
+          type="button"
+          :value="isLiveUpdate ? '暂停更新' : '实时更新'"
+          :title="
           isLiveUpdate ? '正在实时更新，点击暂停' : '已暂停，点击切换为实时更新'
         "
-        @click="changeLiveUpdate"
+          @click="changeLiveUpdate"
       />
-      <input class="btn" v-if="!isDuringDate" type="button" value="休市中" />
+      <input class="btn" v-if="!isDuringDate" type="button" value="休市中"/>
       <input
-        class="btn"
-        type="button"
-        :value="isEdit ? '完成编辑' : '编辑'"
-        @click="isEdit = !isEdit"
+          class="btn"
+          type="button"
+          :value="isEdit ? '完成编辑' : '编辑'"
+          @click="isEdit = !isEdit"
       />
-      <input class="btn" type="button" value="设置" @click="option" />
-      <input class="btn" type="button" value="日志" @click="changelog" />
+      <input class="btn" type="button" value="设置" @click="option"/>
+      <input class="btn" type="button" value="日志" @click="changelog"/>
       <input
-        class="btn primary"
-        type="button"
-        title="φ(>ω<*)"
-        value="打赏"
-        @click="reward"
+          class="btn primary"
+          type="button"
+          title="φ(>ω<*)"
+          value="打赏"
+          @click="reward"
       />
     </div>
     <div class="input-row" v-if="showCost || showGains">
       <input
-        v-if="showGains"
-        class="btn"
-        :class="allGains[0] >= 0 ? 'btn-up' : 'btn-down'"
-        type="button"
-        :title="
+          v-if="showGains"
+          class="btn"
+          :class="allGains[0] >= 0 ? 'btn-up' : 'btn-down'"
+          type="button"
+          :title="
           allGains[0] >= 0 ? 'd=====(￣▽￣*)b 赞一个' : '∑(っ°Д°;)っ 大事不好啦'
         "
-        :value="
+          :value="
           '日收益：' +
             parseFloat(allGains[0]).toLocaleString('zh', {
               minimumFractionDigits: 2,
@@ -434,16 +460,16 @@
         "
       />
       <input
-        v-if="showCost"
-        class="btn"
-        :class="allCostGains[0] >= 0 ? 'btn-up' : 'btn-down'"
-        type="button"
-        :title="
+          v-if="showCost"
+          class="btn"
+          :class="allCostGains[0] >= 0 ? 'btn-up' : 'btn-down'"
+          type="button"
+          :title="
           allCostGains[0] >= 0
             ? 'd=====(￣▽￣*)b 赞一个'
             : '∑(っ°Д°;)っ 大事不好啦'
         "
-        :value="
+          :value="
           '持有收益：' +
             parseFloat(allCostGains[0]).toLocaleString('zh', {
               minimumFractionDigits: 2,
@@ -451,40 +477,52 @@
             (isNaN(allCostGains[1]) ? '' : '（' + allCostGains[1] + '%）')
         "
       />
+      <input
+          v-if="showCost"
+          class="btn"
+          :class="'btn-up'"
+          type="button"
+          :value="
+          '持仓金额：' +
+            parseFloat(allCostGains[2]).toLocaleString('zh', {
+              minimumFractionDigits: 2,
+            })
+        "
+      />
     </div>
     <div
-      class="refresh"
-      :class="{ isRefresh: isRefresh }"
-      title="手动刷新数据"
-      @click="refresh"
+        class="refresh"
+        :class="{ isRefresh: isRefresh }"
+        title="手动刷新数据"
+        @click="refresh"
     >
       <i class="el-icon-refresh"></i>
     </div>
     <market
-      :darkMode="darkMode"
-      @close="closeCharts"
-      ref="marketShadow"
+        :darkMode="darkMode"
+        @close="closeCharts"
+        ref="marketShadow"
     ></market>
     <ind-detail @close="closeCharts" :darkMode="darkMode" ref="indDetail">
     </ind-detail>
     <fund-detail
-      @close="closeCharts"
-      :fund="sltFund"
-      :darkMode="darkMode"
-      ref="fundDetail"
+        @close="closeCharts"
+        :fund="sltFund"
+        :darkMode="darkMode"
+        ref="fundDetail"
     ></fund-detail>
     <reward @close="rewardShadow = false" ref="reward"></reward>
     <change-log
-      @close="closeChangelog"
-      :darkMode="darkMode"
-      ref="changelog"
-      :top="30"
+        @close="closeChangelog"
+        :darkMode="darkMode"
+        ref="changelog"
+        :top="30"
     ></change-log>
   </div>
 </template>
 
 <script>
-const { version } = require("../../package.json");
+const {version} = require("../../package.json");
 import reward from "../common/reward";
 import indDetail from "../common/indDetail";
 import fundDetail from "../common/fundDetail";
@@ -492,6 +530,7 @@ import changeLog from "../common/changeLog";
 import market from "../common/market";
 //防抖
 let timeout = null;
+
 function debounce(fn, wait = 700) {
   if (timeout !== null) clearTimeout(timeout);
   timeout = setTimeout(fn, wait);
@@ -509,6 +548,7 @@ export default {
     return {
       isEdit: false,
       fundcode: "",
+      investmentProductsType: "",
       isAdd: false,
       indFundData: [],
       isLiveUpdate: false,
@@ -614,6 +654,13 @@ export default {
       opacityValue: 0,
       isRefresh: false,
       marketShadow: false,
+      typeOptions: [{
+        value: 'stock',
+        label: '股票'
+      }, {
+        value: 'fund',
+        label: '基金'
+      }],
     };
   },
   mounted() {
@@ -649,10 +696,10 @@ export default {
       });
       allCostGains = allCostGains.toFixed(2);
       let allCostGainsRate = (
-        (allCostGains * 100) /
-        (allNum - allCostGains)
+          (allCostGains * 100) /
+          (allNum - allCostGains)
       ).toFixed(2);
-      return [allCostGains, allCostGainsRate];
+      return [allCostGains, allCostGainsRate, allNum];
     },
     containerClass() {
       let className = "";
@@ -752,98 +799,98 @@ export default {
     },
     init() {
       chrome.storage.sync.get(
-        [
-          "RealtimeFundcode",
-          "RealtimeIndcode",
-          "fundListM",
-          "showAmount",
-          "showGains",
-          "fundList",
-          "seciList",
-          "darkMode",
-          "normalFontSize",
-          "isLiveUpdate",
-          "showCost",
-          "showCostRate",
-          "showGSZ",
-          "version",
-          "showBadge",
-          "BadgeContent",
-          "userId",
-          "grayscaleValue",
-          "opacityValue",
-          "sortTypeObj",
-        ],
-        (res) => {
-          this.fundList = res.fundList ? res.fundList : this.fundList;
-          if (res.fundListM) {
-            this.fundListM = res.fundListM;
-          } else {
-            for (const fund of this.fundList) {
-              let val = {
-                code: fund,
-                num: 0,
-              };
-              this.fundListM.push(val);
+          [
+            "RealtimeFundcode",
+            "RealtimeIndcode",
+            "fundListM",
+            "showAmount",
+            "showGains",
+            "fundList",
+            "seciList",
+            "darkMode",
+            "normalFontSize",
+            "isLiveUpdate",
+            "showCost",
+            "showCostRate",
+            "showGSZ",
+            "version",
+            "showBadge",
+            "BadgeContent",
+            "userId",
+            "grayscaleValue",
+            "opacityValue",
+            "sortTypeObj",
+          ],
+          (res) => {
+            this.fundList = res.fundList ? res.fundList : this.fundList;
+            if (res.fundListM) {
+              this.fundListM = res.fundListM;
+            } else {
+              for (const fund of this.fundList) {
+                let val = {
+                  code: fund,
+                  num: 0,
+                };
+                this.fundListM.push(val);
+              }
+              chrome.storage.sync.set({
+                fundListM: this.fundListM,
+              });
             }
-            chrome.storage.sync.set({
-              fundListM: this.fundListM,
-            });
-          }
-          if (res.userId) {
-            this.userId = res.userId;
-          } else {
-            this.userId = this.getGuid();
-            chrome.storage.sync.set({
-              userId: this.userId,
-            });
-          }
-          this.darkMode = res.darkMode ? res.darkMode : false;
-          this.normalFontSize = res.normalFontSize ? res.normalFontSize : false;
-          this.seciList = res.seciList ? res.seciList : this.seciList;
-          this.showAmount = res.showAmount ? res.showAmount : false;
-          this.showGains = res.showGains ? res.showGains : false;
-          this.RealtimeFundcode = res.RealtimeFundcode;
-          this.RealtimeIndcode = res.RealtimeIndcode;
-          this.isLiveUpdate = res.isLiveUpdate ? res.isLiveUpdate : false;
-          this.showCost = res.showCost ? res.showCost : false;
-          this.showCostRate = res.showCostRate ? res.showCostRate : false;
-          this.showGSZ = res.showGSZ ? res.showGSZ : false;
-          this.BadgeContent = res.BadgeContent ? res.BadgeContent : 1;
-          this.showBadge = res.showBadge ? res.showBadge : 1;
-          this.grayscaleValue = res.grayscaleValue ? res.grayscaleValue : 0;
-          this.opacityValue = res.opacityValue ? res.opacityValue : 0;
-          this.sortTypeObj = res.sortTypeObj ? res.sortTypeObj : {};
+            if (res.userId) {
+              this.userId = res.userId;
+            } else {
+              this.userId = this.getGuid();
+              chrome.storage.sync.set({
+                userId: this.userId,
+              });
+            }
+            this.darkMode = res.darkMode ? res.darkMode : false;
+            this.normalFontSize = res.normalFontSize ? res.normalFontSize : false;
+            this.seciList = res.seciList ? res.seciList : this.seciList;
+            this.showAmount = res.showAmount ? res.showAmount : false;
+            this.showGains = res.showGains ? res.showGains : false;
+            this.RealtimeFundcode = res.RealtimeFundcode;
+            this.RealtimeIndcode = res.RealtimeIndcode;
+            this.isLiveUpdate = res.isLiveUpdate ? res.isLiveUpdate : false;
+            this.showCost = res.showCost ? res.showCost : false;
+            this.showCostRate = res.showCostRate ? res.showCostRate : false;
+            this.showGSZ = res.showGSZ ? res.showGSZ : false;
+            this.BadgeContent = res.BadgeContent ? res.BadgeContent : 1;
+            this.showBadge = res.showBadge ? res.showBadge : 1;
+            this.grayscaleValue = res.grayscaleValue ? res.grayscaleValue : 0;
+            this.opacityValue = res.opacityValue ? res.opacityValue : 0;
+            this.sortTypeObj = res.sortTypeObj ? res.sortTypeObj : {};
 
-          if (this.seciList.length > 0) {
-            this.loadingInd = true;
+            if (this.seciList.length > 0) {
+              this.loadingInd = true;
+            }
+
+            this.grayscale = {
+              filter: "grayscale(" + this.grayscaleValue / 100 + ")",
+            };
+            this.opacity = {
+              opacity: 1 - this.opacityValue / 100,
+            };
+
+            this.isGetStorage = true;
+            this.getIndFundData();
+            this.getData();
+            this.checkInterval(true);
+
+            let ver = res.version ? res.version : "1.0.0";
+            if (ver != this.localVersion) {
+              this.changelog();
+            }
           }
-
-          this.grayscale = {
-            filter: "grayscale(" + this.grayscaleValue / 100 + ")",
-          };
-          this.opacity = {
-            opacity: 1 - this.opacityValue / 100,
-          };
-
-          this.isGetStorage = true;
-          this.getIndFundData();
-          this.getData();
-          this.checkInterval(true);
-
-          let ver = res.version ? res.version : "1.0.0";
-          if (ver != this.localVersion) {
-            this.changelog();
-          }
-        }
       );
     },
     getGuid() {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
-        c
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
+          c
       ) {
         var r = (Math.random() * 16) | 0,
-          v = c == "x" ? r : (r & 0x3) | 0x8;
+            v = c == "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
       });
     },
@@ -867,7 +914,7 @@ export default {
     checkInterval(isFirst) {
       clearInterval(this.myVar);
       clearInterval(this.myVar1);
-      chrome.runtime.sendMessage({ type: "DuringDate" }, (response) => {
+      chrome.runtime.sendMessage({type: "DuringDate"}, (response) => {
         this.isDuringDate = response.farewell;
         if (this.isLiveUpdate && this.isDuringDate) {
           if (!isFirst) {
@@ -892,34 +939,56 @@ export default {
     remoteMethod(query) {
       if (query !== "") {
         this.loading = true;
-        let url =
-          "https://search-codetable.eastmoney.com/codetable/search/web?client=web&clientType=webSuggest&clientVersion=lastest&cb=jQuery35108596335487712423_1736137120624&keyword=" +
-          query +
-          "&pageIndex=1&pageSize=10&securityFilter=&_=" +
-          new Date().getTime();
-        this.$axios.get(url).then((res) => {
-          const dataString = JSON.stringify(res.data);
-          const jsonData = this.handleResponse(dataString);
-          this.searchOptions = jsonData.result.filter((val) => {
-            let hasCode = this.fundListM.some((currentValue, index, array) => {
-              return currentValue.code == val.code;
+        if (this.investmentProductsType === 'stock') {
+          let url =
+              "https://search-codetable.eastmoney.com/codetable/search/web?client=web&clientType=webSuggest&clientVersion=lastest&cb=jQuery35108596335487712423_1736137120624&keyword=" +
+              query +
+              "&pageIndex=1&pageSize=10&securityFilter=&_=" +
+              new Date().getTime();
+          this.$axios.get(url).then((res) => {
+            const dataString = JSON.stringify(res.data);
+            const jsonData = this.handleResponse(dataString);
+            this.searchOptions = jsonData.result.filter((val) => {
+              let hasCode = this.fundListM.some((currentValue, index, array) => {
+                return currentValue.code == val.code;
+              });
+              return !hasCode;
+            }).map((val) => {
+              return {
+                value: val.code,
+                label: val.shortName,
+              };
             });
-            return !hasCode;
-          }).map((val) => {
-            return {
-              value: val.code,
-              label: val.shortName,
-            };
+            this.loading = false;
           });
-          this.loading = false;
-        });
+        } else {
+          let url =
+              "https://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?&m=9&key=" +
+              query +
+              "&_=" +
+              new Date().getTime();
+          this.$axios.get(url).then((res) => {
+            this.searchOptions = res.data.Datas.filter((val) => {
+              let hasCode = this.fundListM.some((currentValue, index, array) => {
+                return currentValue.code == val.CODE;
+              });
+              return !hasCode;
+            }).map((val) => {
+              return {
+                value: val.CODE,
+                label: val.NAME,
+              };
+            });
+            this.loading = false;
+          });
+        }
       } else {
         this.searchOptions = [];
       }
     },
 
     option() {
-      chrome.tabs.create({ url: "/options/options.html" });
+      chrome.tabs.create({url: "/options/options.html"});
     },
     reward() {
       this.rewardShadow = true;
@@ -944,16 +1013,16 @@ export default {
         }
       }
       this.sortType[type] =
-        this.sortType[type] == "desc"
-          ? "asc"
-          : this.sortType[type] == "asc"
-          ? "none"
-          : "desc";
+          this.sortType[type] == "desc"
+              ? "asc"
+              : this.sortType[type] == "asc"
+              ? "none"
+              : "desc";
       if (this.sortType[type] == "none") {
         this.dataList = [...this.dataListDft];
       } else {
         this.dataList = this.dataList.sort(
-          this.compare(type, this.sortType[type])
+            this.compare(type, this.sortType[type])
         );
       }
       this.sortTypeObj = {
@@ -965,7 +1034,7 @@ export default {
       });
     },
     compare(property, type) {
-      return function(obj1, obj2) {
+      return function (obj1, obj2) {
         var val1 = obj1[property];
         var val2 = obj2[property];
         if (type == "asc") {
@@ -983,45 +1052,45 @@ export default {
     },
     changeLiveUpdate() {
       chrome.storage.sync.set(
-        {
-          isLiveUpdate: !this.isLiveUpdate,
-        },
-        () => {
-          this.isLiveUpdate = !this.isLiveUpdate;
-          this.checkInterval();
-        }
+          {
+            isLiveUpdate: !this.isLiveUpdate,
+          },
+          () => {
+            this.isLiveUpdate = !this.isLiveUpdate;
+            this.checkInterval();
+          }
       );
     },
     saveSeci() {
       this.seciList.push(this.sltSeci);
       chrome.storage.sync.set(
-        {
-          seciList: this.seciList,
-        },
-        () => {
-          this.sltSeci = "";
-          this.getIndFundData();
-        }
+          {
+            seciList: this.seciList,
+          },
+          () => {
+            this.sltSeci = "";
+            this.getIndFundData();
+          }
       );
     },
     dltIndFund(ind) {
       this.seciList.splice(ind, 1);
       chrome.storage.sync.set(
-        {
-          seciList: this.seciList,
-        },
-        () => {
-          this.getIndFundData();
-        }
+          {
+            seciList: this.seciList,
+          },
+          () => {
+            this.getIndFundData();
+          }
       );
     },
     getIndFundData() {
       let seciListStr = this.seciList.join(",");
       let url =
-        "https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&fields=f2,f3,f4,f12,f13,f14&secids=" +
-        seciListStr +
-        "&_=" +
-        new Date().getTime();
+          "https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&fields=f2,f3,f4,f12,f13,f14&secids=" +
+          seciListStr +
+          "&_=" +
+          new Date().getTime();
       this.$axios.get(url).then((res) => {
         this.loadingInd = false;
         this.indFundData = res.data.data.diff;
@@ -1031,73 +1100,153 @@ export default {
       // let fundlist = this.fundListM.map((val) => val.code).join(",");
       this.dataList = [];
       for (var element of this.fundListM) {
-        let stockCode = element.code;
-        var url;
-        if (stockCode.startsWith("000") || stockCode.startsWith("002") || stockCode.startsWith("200") || stockCode.startsWith("300")
-            || stockCode.startsWith("159")) {
-          url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=0." + element.code +
-              "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
-        } else if (stockCode.length == 5) {
-          url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=116." + element.code +
-              "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
-        } else {
-          url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=1." + element.code +
-              "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
-        }
-        await this.$axios.get(url)
-            .then((res) => {
-              var response = this.handleResponse(res.data);
-              // 确保所有异步操作完成后才更新状态和打印
-              this.loadingList = false;
+        let investmentProductsCode = element.code;
+        if (element.investmentProductsType === undefined
+            || element.investmentProductsType === 'stock') {
+          var url;
+          if (investmentProductsCode.startsWith("000") || investmentProductsCode.startsWith("002") || investmentProductsCode.startsWith("200") || investmentProductsCode.startsWith("300")
+              || investmentProductsCode.startsWith("159")) {
+            url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=0." + element.code +
+                "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
+          } else if (investmentProductsCode.length == 5) {
+            url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=116." + element.code +
+                "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
+          } else {
+            url = "https://push2his.eastmoney.com/api/qt/stock/kline/get?cb=jQuery351037463638761036333_1736154714792&secid=1." + element.code +
+                "&ut=fa5fd1943c7b386f172d6893dbfba10b&fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&klt=101&fqt=1&end=20500101&lmt=2&_=1736154714806";
+          }
+          await this.$axios.get(url)
+              .then((res) => {
+                var response = this.handleResponse(res.data);
+                // 确保所有异步操作完成后才更新状态和打印
+                this.loadingList = false;
+                var latestDate = response?.data.klines[1].split(",")[0];
+                var date = new Date();
+                var year = date.getFullYear();
+                var month = String(date.getMonth() + 1).padStart(2, '0'); // 确保两位数格式
+                var day = String(date.getDate()).padStart(2, '0'); // 确保两位数格式
+                var formattedDate = `${year}-${month}-${day}`;
+                let data;
+                if (latestDate === formattedDate) {
+                  data = {
+                    fundcode: response?.data.code,
+                    name: response?.data.name,
+                    investmentProductsType: element.investmentProductsType,
+                    // 上一交易日 日期
+                    jzrq: response?.data.klines[0].split(",")[0],
+                    // 上一交易日 单位净值
+                    dwjz: response?.data.klines[0].split(",")[2],
+                    lastPrice: response?.data.klines[0].split(",")[2],
+                    currentPrice: response?.data.klines[1].split(",")[2],
+                    // 今日 估算净值
+                    gsz: this.currentPrice,
+                    // 今日 估算收益率
+                    // gszzl: isNaN(val.GSZZL) ? 0 : val.GSZZL,
+                    // 估算时间
+                    gztime: response?.data.klines[0].split(",")[0],
+                  };
+                } else {
+                  data = {
+                    fundcode: response?.data.code,
+                    name: response?.data.name,
+                    investmentProductsType: element.investmentProductsType,
+                    // 上一交易日 日期
+                    jzrq: response?.data.klines[1].split(",")[0],
+                    // 上一交易日 单位净值
+                    dwjz: response?.data.klines[1].split(",")[2],
+                    lastPrice: response?.data.klines[1].split(",")[2],
+                    currentPrice: response?.data.klines[1].split(",")[2],
+                    // 今日 估算净值
+                    gsz: this.currentPrice,
+                    // 今日 估算收益率
+                    // gszzl: isNaN(val.GSZZL) ? 0 : val.GSZZL,
+                    // 估算时间
+                    gztime: response?.data.klines[0].split(",")[0],
+                  };
+                }
 
-              let data = {
-                fundcode: response?.data.code,
-                name: response?.data.name,
-                // 上一交易日 日期
-                jzrq: response?.data.klines[0].split(",")[0],
-                // 上一交易日 单位净值
-                dwjz: response?.data.klines[0].split(",")[2],
-                lastPrice:response?.data.klines[0].split(",")[2],
-                currentPrice:response?.data.klines[1].split(",")[2],
-                // 今日 估算净值
-                gsz: this.currentPrice,
-                // 今日 估算收益率
-                // gszzl: isNaN(val.GSZZL) ? 0 : val.GSZZL,
-                // 估算时间
-                gztime: response?.data.klines[0].split(",")[0],
-              };
-              // if (response?.data.klines[0].split(",")[0] != "--" && response?.data.klines[0].split(",")[0] == val.GZTIME.substr(0, 10)) {
-              // data.gsz = val.NAV;
-              // data.gszzl = isNaN(val.NAVCHGRT) ? 0 : val.NAVCHGRT;
-              // data.hasReplace = true;
-              // }
-              let slt = this.fundListM.filter(
-                  (item) => item.code == data.fundcode
-              );
-              data.num = slt[0].num;
-              data.cost = slt[0].cost;
-              data.amount = this.calculateMoney(data);
-              // 今日收益金额
-              data.gains = this.calculate(data, data.hasReplace);
-              // 持有收益额
-              data.costGains = this.calculateCost(data);
-              // 持有收益率
-              data.costGainsRate = this.calculateCostRate(data);
-              // 涨跌幅
-              data.gszzl = ((data.currentPrice / data.lastPrice - 1) * 100).toFixed(2);
-              if (data.fundcode == this.RealtimeFundcode) {
-                if (this.showBadge == 1) {
-                  if (this.BadgeContent == 1) {
-                    chrome.runtime.sendMessage({
-                      type: "refreshBadge",
-                      data: data,
-                    });
+                // if (response?.data.klines[0].split(",")[0] != "--" && response?.data.klines[0].split(",")[0] == val.GZTIME.substr(0, 10)) {
+                // data.gsz = val.NAV;
+                // data.gszzl = isNaN(val.NAVCHGRT) ? 0 : val.NAVCHGRT;
+                // data.hasReplace = true;
+                // }
+                let slt = this.fundListM.filter(
+                    (item) => item.code == data.fundcode
+                );
+                data.num = slt[0].num;
+                data.cost = slt[0].cost;
+                data.amount = this.calculateMoney(data);
+                // 今日收益金额
+                data.gains = this.calculate(data, data.hasReplace);
+                // 持有收益额
+                data.costGains = this.calculateCost(data);
+                // 持有收益率
+                data.costGainsRate = this.calculateCostRate(data);
+                // 涨跌幅
+                data.gszzl = ((data.currentPrice / data.lastPrice - 1) * 100).toFixed(2);
+                if (data.fundcode == this.RealtimeFundcode) {
+                  if (this.showBadge == 1) {
+                    if (this.BadgeContent == 1) {
+                      chrome.runtime.sendMessage({
+                        type: "refreshBadge",
+                        data: data,
+                      });
+                    }
                   }
                 }
-              }
 
-              this.dataList.push(data);
-            })
+                this.dataList.push(data);
+              })
+
+        } else {
+          let url = "https://fundgz.1234567.com.cn/js/" + investmentProductsCode + ".js";
+          await this.$axios
+              .get(url)
+              .then((res) => {
+                this.loadingList = false;
+                res = this.handleResponse(res.data)
+                let data = {
+                  fundcode: res.fundcode,
+                  name: res.name,
+                  investmentProductsType: element.investmentProductsType,
+                  jzrq: res.jzrq,
+                  lastPrice: res.dwjz,
+                  currentPrice: res.gsz,
+                  gszzl: res.gszzl,
+                  gztime: res.gztime,
+                };
+                // if (res.PDATE != "--" && res.PDATE == res.GZTIME.substr(0, 10)) {
+                //   data.gsz = res.NAV;
+                //   data.gszzl = isNaN(res.NAVCHGRT) ? 0 : res.NAVCHGRT;
+                //   data.hasReplace = true;
+                // }
+
+                let slt = this.fundListM.filter(
+                    (item) => item.code == data.fundcode
+                );
+                data.num = slt[0].num;
+                data.cost = slt[0].cost;
+                data.amount = this.calculateMoney(data);
+                data.gains = this.calculate(data, data.hasReplace);
+                data.costGains = this.calculateCost(data);
+                data.costGainsRate = this.calculateCostRate(data);
+                if (data.fundcode == this.RealtimeFundcode) {
+                  if (this.showBadge == 1) {
+                    if (this.BadgeContent == 1) {
+                      chrome.runtime.sendMessage({
+                        type: "refreshBadge",
+                        data: data,
+                      });
+                    }
+                  }
+                }
+
+                this.dataList.push(data);
+              })
+              .catch((error) => {
+                console.log("error", error)
+              });
+        }
       }
       if (this.showBadge == 1) {
         if (this.BadgeContent == 2) {
@@ -1110,7 +1259,7 @@ export default {
 
       this.dataListDft = [...this.dataList];
       if (type == "add") {
-        this.dataList = dataList;
+        this.dataList = this.dataList;
       } else if (this.sortTypeObj.type != "none") {
         this.sortType[this.sortTypeObj.name] = this.sortTypeObj.type;
         this.dataList = this.dataList.sort(
@@ -1127,9 +1276,27 @@ export default {
       const endIdx = responseString.lastIndexOf(')');
       // 2. 使用 substring 截取 JSON 字符串部分
       let jsonString = responseString.substring(startIdx, endIdx).replaceAll('\"', '"');
-      jsonString = jsonString.replace(/\\\"/g, '"');;
+      jsonString = jsonString.replace(/\\\"/g, '"');
+
       const jsonData = JSON.parse(jsonString);
       return jsonData;
+    },
+    changeInvestmentProductsType(item, ind) {
+      debounce(() => {
+        for (let fund of this.fundListM) {
+          if (fund.code == item.fundcode) {
+            fund.investmentProductsType = item.investmentProductsType;
+          }
+        }
+        chrome.storage.sync.set(
+            {
+              fundListM: this.fundListM,
+            },
+            () => {
+              chrome.runtime.sendMessage({type: "refresh"});
+            }
+        );
+      });
     },
     changeNum(item, ind) {
       debounce(() => {
@@ -1139,15 +1306,15 @@ export default {
           }
         }
         chrome.storage.sync.set(
-          {
-            fundListM: this.fundListM,
-          },
-          () => {
-            item.amount = this.calculateMoney(item);
-            item.gains = this.calculate(item, item.hasReplace);
-            item.costGains = this.calculateCost(item);
-            chrome.runtime.sendMessage({ type: "refresh" });
-          }
+            {
+              fundListM: this.fundListM,
+            },
+            () => {
+              item.amount = this.calculateMoney(item);
+              item.gains = this.calculate(item, item.hasReplace);
+              item.costGains = this.calculateCost(item);
+              chrome.runtime.sendMessage({type: "refresh"});
+            }
         );
       });
     },
@@ -1159,13 +1326,13 @@ export default {
           }
         }
         chrome.storage.sync.set(
-          {
-            fundListM: this.fundListM,
-          },
-          () => {
-            item.costGains = this.calculateCost(item);
-            item.costGainsRate = this.calculateCostRate(item);
-          }
+            {
+              fundListM: this.fundListM,
+            },
+            () => {
+              item.costGains = this.calculateCost(item);
+              item.costGainsRate = this.calculateCostRate(item);
+            }
         );
       });
     },
@@ -1207,98 +1374,99 @@ export default {
         let val = {
           code: code,
           num: 0,
+          investmentProductsType: this.investmentProductsType
         };
         this.fundListM.push(val);
       });
 
       chrome.storage.sync.set(
-        {
-          fundListM: this.fundListM,
-        },
-        () => {
-          this.fundcode = [];
-          this.getData("add");
-          chrome.runtime.sendMessage({ type: "refresh" });
-        }
+          {
+            fundListM: this.fundListM,
+          },
+          () => {
+            this.fundcode = [];
+            this.getData("add");
+            chrome.runtime.sendMessage({type: "refresh"});
+          }
       );
     },
     sltInd(val) {
       let code = val.f13 + "." + val.f12;
       if (code == this.RealtimeIndcode) {
         chrome.storage.sync.set(
-          {
-            RealtimeIndcode: null,
-          },
-          () => {
-            this.RealtimeIndcode = null;
-            chrome.runtime.sendMessage({ type: "endInterval" });
-          }
+            {
+              RealtimeIndcode: null,
+            },
+            () => {
+              this.RealtimeIndcode = null;
+              chrome.runtime.sendMessage({type: "endInterval"});
+            }
         );
       } else {
         chrome.storage.sync.set(
-          {
-            RealtimeIndcode: code,
-          },
-          () => {
-            this.RealtimeIndcode = code;
-            chrome.runtime.sendMessage({ type: "refresh" });
-          }
+            {
+              RealtimeIndcode: code,
+            },
+            () => {
+              this.RealtimeIndcode = code;
+              chrome.runtime.sendMessage({type: "refresh"});
+            }
         );
       }
     },
     slt(id) {
       if (id == this.RealtimeFundcode) {
         chrome.storage.sync.set(
-          {
-            RealtimeFundcode: null,
-          },
-          () => {
-            this.RealtimeFundcode = null;
-            chrome.runtime.sendMessage({ type: "endInterval" });
-          }
+            {
+              RealtimeFundcode: null,
+            },
+            () => {
+              this.RealtimeFundcode = null;
+              chrome.runtime.sendMessage({type: "endInterval"});
+            }
         );
       } else {
         chrome.storage.sync.set(
-          {
-            RealtimeFundcode: id,
-          },
-          () => {
-            this.RealtimeFundcode = id;
-            chrome.runtime.sendMessage({ type: "refresh" });
-          }
+            {
+              RealtimeFundcode: id,
+            },
+            () => {
+              this.RealtimeFundcode = id;
+              chrome.runtime.sendMessage({type: "refresh"});
+            }
         );
       }
     },
     dlt(id) {
-      this.fundListM = this.fundListM.filter(function(ele) {
+      this.fundListM = this.fundListM.filter(function (ele) {
         return ele.code != id;
       });
 
       if (id == this.RealtimeFundcode) {
         chrome.storage.sync.set(
-          {
-            RealtimeFundcode: null,
-          },
-          () => {
-            this.RealtimeFundcode = null;
-            if (this.BadgeContent == 1) {
-              chrome.runtime.sendMessage({ type: "endInterval" });
+            {
+              RealtimeFundcode: null,
+            },
+            () => {
+              this.RealtimeFundcode = null;
+              if (this.BadgeContent == 1) {
+                chrome.runtime.sendMessage({type: "endInterval"});
+              }
             }
-          }
         );
       }
       chrome.storage.sync.set(
-        {
-          fundListM: this.fundListM,
-        },
-        () => {
-          this.dataList = this.dataList.filter(function(ele) {
-            return ele.fundcode != id;
-          });
-          if (this.BadgeContent == 2) {
-            chrome.runtime.sendMessage({ type: "refresh" });
+          {
+            fundListM: this.fundListM,
+          },
+          () => {
+            this.dataList = this.dataList.filter(function (ele) {
+              return ele.fundcode != id;
+            });
+            if (this.BadgeContent == 2) {
+              chrome.runtime.sendMessage({type: "refresh"});
+            }
           }
-        }
       );
     },
     handleDragStart(e, item) {
@@ -1311,17 +1479,19 @@ export default {
       this.dragging = null;
       if (item.fundcode) {
         chrome.storage.sync.set(
-          {
-            fundListM: this.fundListM,
-          },
-          () => {}
+            {
+              fundListM: this.fundListM,
+            },
+            () => {
+            }
         );
       } else if (item.f12) {
         chrome.storage.sync.set(
-          {
-            seciList: this.seciList,
-          },
-          () => {}
+            {
+              seciList: this.seciList,
+            },
+            () => {
+            }
         );
       }
     },
@@ -1343,10 +1513,10 @@ export default {
         //数据列表也同步更新
         const newDataItems = [...this.dataList];
         const dataSrc = newDataItems.findIndex(
-          (n) => n.fundcode == this.dragging.fundcode
+            (n) => n.fundcode == this.dragging.fundcode
         );
         const dataDst = newDataItems.findIndex(
-          (n) => n.fundcode == item.fundcode
+            (n) => n.fundcode == item.fundcode
         );
         newDataItems.splice(dataDst, 0, ...newDataItems.splice(dataSrc, 1));
         this.dataList = newDataItems;
@@ -1357,23 +1527,23 @@ export default {
         }
         const newIndItems = [...this.seciList];
         const indSrc = newIndItems.findIndex(
-          (n) => n.split(".")[1] == this.dragging.f12
+            (n) => n.split(".")[1] == this.dragging.f12
         );
         const indDst = newIndItems.findIndex(
-          (n) => n.split(".")[1] == item.f12
+            (n) => n.split(".")[1] == item.f12
         );
         newIndItems.splice(indDst, 0, ...newIndItems.splice(indSrc, 1));
         this.seciList = newIndItems;
 
         const newIndDataItems = [...this.indFundData];
         const indDataSrc = newIndDataItems.findIndex(
-          (n) => n.f12 == this.dragging.f12
+            (n) => n.f12 == this.dragging.f12
         );
         const indDataDst = newIndDataItems.findIndex((n) => n.f12 == item.f12);
         newIndDataItems.splice(
-          indDataDst,
-          0,
-          ...newIndDataItems.splice(indDataSrc, 1)
+            indDataDst,
+            0,
+            ...newIndDataItems.splice(indDataSrc, 1)
         );
         this.indFundData = newIndDataItems;
       }
@@ -1392,7 +1562,7 @@ export default {
   position: relative;
   font-size: 12px;
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
-    "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
 }
 
 .refresh {
@@ -1402,6 +1572,7 @@ export default {
   bottom: 12px;
 
   cursor: pointer;
+
   i {
     color: #409eff;
     font-size: 18px;
@@ -1438,6 +1609,7 @@ export default {
 .table-more-height {
   min-height: 160px;
 }
+
 .table-drag {
   cursor: move;
 }
@@ -1446,15 +1618,19 @@ export default {
   &.num-width-1 {
     min-width: 420px;
   }
+
   &.num-width-2 {
     min-width: 480px;
   }
+
   &.num-width-3 {
     min-width: 540px;
   }
+
   &.num-width-4 {
     min-width: 610px;
   }
+
   &.num-width-5 {
     min-width: 680px;
   }
@@ -1479,12 +1655,21 @@ export default {
   border: 1px solid #409eff;
 }
 
+.stock-color {
+  color: red; /* 股票颜色 */
+}
+
+.fund-color {
+  color: blue; /* 基金颜色 */
+}
+
 table {
   margin: 0 auto;
   width: 100%;
   border-collapse: collapse;
   text-align: right;
 }
+
 .align-left {
   text-align: left;
 }
@@ -1565,14 +1750,17 @@ tbody tr:hover {
   text-align: center;
   margin-top: 10px;
 }
+
 .gear-input-row {
   display: flex;
   justify-content: center;
   align-items: center;
+
   .slider-title {
     font-size: 14px;
     margin: 0 5px 0 15px;
   }
+
   .slider {
     display: inline-block;
     width: 20%;
@@ -1583,16 +1771,20 @@ tbody tr:hover {
   flex: 1;
   margin: 0 4px;
   text-align: center;
+
   h5 {
     margin: 4px 0;
     font-size: 12px;
+
     .dltBtn {
       margin-left: 3px;
     }
   }
+
   p {
     margin: 4px 0;
   }
+
   .addSeci {
     margin: 10px auto;
     width: 40px;
@@ -1603,6 +1795,7 @@ tbody tr:hover {
     border-radius: 50%;
   }
 }
+
 .indFund {
   cursor: pointer;
 }
@@ -1676,11 +1869,13 @@ tbody tr:hover {
   position: absolute;
   right: 0;
 }
+
 .down-arrow.desc::after {
   transform-origin: center;
   transform: rotate(45deg);
   top: -10px;
 }
+
 .down-arrow.asc::after {
   transform-origin: center;
   transform: rotate(-135deg);
@@ -1700,18 +1895,23 @@ tbody tr:hover {
 .normalFontSize {
   min-width: 450px;
   font-size: 14px;
+
   &.num-width-1 {
     min-width: 500px;
   }
+
   &.num-width-2 {
     min-width: 580px;
   }
+
   &.num-width-3 {
     min-width: 630px;
   }
+
   &.num-width-4 {
     min-width: 690px;
   }
+
   &.num-width-5 {
     min-width: 750px;
   }
@@ -1720,6 +1920,7 @@ tbody tr:hover {
   .tips {
     font-size: 14px;
   }
+
   .tab-col {
     h5 {
       font-size: 14px;
@@ -1746,22 +1947,27 @@ tbody tr:hover {
 .container.darkMode {
   color: rgba($color: #ffffff, $alpha: 0.6);
   background-color: #121212;
+
   .refresh {
     color: rgba($color: #409eff, $alpha: 0.6);
   }
+
   .btn {
     background-color: rgba($color: #ffffff, $alpha: 0.16);
     color: rgba($color: #ffffff, $alpha: 0.6);
     border: 1px solid rgba($color: #ffffff, $alpha: 0.6);
   }
+
   .primary {
     border: 1px solid rgba($color: #409eff, $alpha: 0.6);
     background-color: rgba($color: #409eff, $alpha: 0.6);
   }
+
   ::v-deep .el-input__inner {
     background-color: rgba($color: #ffffff, $alpha: 0.16);
     color: rgba($color: #ffffff, $alpha: 0.6);
   }
+
   ::v-deep .el-select__input {
     color: rgba($color: #ffffff, $alpha: 0.6);
   }
@@ -1816,12 +2022,15 @@ tbody tr:hover {
   ::v-deep .el-select-dropdown {
     background-color: #383838;
     border: 1px solid rgba($color: #ffffff, $alpha: 0.38);
+
     .popper__arrow::after {
       border-bottom-color: #383838;
     }
+
     .el-scrollbar {
       background-color: rgba($color: #ffffff, $alpha: 0.16);
     }
+
     .el-select-dropdown__item {
       color: rgba($color: #ffffff, $alpha: 0.6);
     }
@@ -1830,10 +2039,12 @@ tbody tr:hover {
     .el-select-dropdown__item:hover {
       background-color: rgba($color: #ffffff, $alpha: 0.08);
     }
+
     .el-select-dropdown__item.selected {
       color: rgba($color: #409eff, $alpha: 0.6);
       background-color: rgba($color: #ffffff, $alpha: 0.08);
     }
+
     .el-select-dropdown__item.selected::after {
       color: rgba($color: #409eff, $alpha: 0.6);
     }
@@ -1842,6 +2053,7 @@ tbody tr:hover {
   ::v-deep .el-switch__label.is-active {
     color: rgba($color: #409eff, $alpha: 0.87);
   }
+
   ::v-deep .el-switch__label {
     color: rgba($color: #ffffff, $alpha: 0.6);
   }
