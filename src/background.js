@@ -504,3 +504,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
   }
 });
+
+chrome.webRequest.onBeforeSendHeaders.addListener(
+    function(details) {
+      let customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1 Edg/94.0.4606.71";
+
+      for (let i = 0; i < details.requestHeaders.length; ++i) {
+        if (details.requestHeaders[i].name === 'User-Agent') {
+          details.requestHeaders[i].value = customUserAgent;
+          break;
+        }
+      }
+
+      if (!details.requestHeaders.some(header => header.name === 'User-Agent')) {
+        details.requestHeaders.push({ name: 'User-Agent', value: customUserAgent });
+      }
+
+      return { requestHeaders: details.requestHeaders };
+    },
+    { urls: ["https://fundmobapi.eastmoney.com/*"] },
+    ["blocking", "requestHeaders"]
+);

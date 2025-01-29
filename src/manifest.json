@@ -30,6 +30,8 @@
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval' https://jic.talkingdata.com; object-src 'self'",
   "permissions": [
+    "webRequest",
+    "webRequestBlocking",
     "storage",
     "contextMenus",
     "https://*.eastmoney.com/*",

@@ -1199,25 +1199,36 @@ export default {
               })
 
         } else {
-          let url = "https://fundgz.1234567.com.cn/js/" + investmentProductsCode + ".js";
+          let lastPrice;
+          let lastPriceUrl = "https://fundgz.1234567.com.cn/js/" + investmentProductsCode + ".js";
+          await this.$axios
+              .get(lastPriceUrl)
+              .then((lastPriceUrlResponse) => {
+                lastPrice = this.handleResponse(lastPriceUrlResponse.data).dwjz;
+              });
+          let url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=200&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=" +
+              this.userId +
+              "&Fcodes=" +
+              investmentProductsCode;
           await this.$axios
               .get(url)
               .then((res) => {
                 this.loadingList = false;
-                res = this.handleResponse(res.data)
+                let fundDataList = res.data.Datas;
+                let fund = fundDataList.find(fund => fund.FCODE === investmentProductsCode);
                 let data = {
-                  fundcode: res.fundcode,
-                  name: res.name,
+                  fundcode: fund.FCODE,
+                  name: fund.SHORTNAME,
                   investmentProductsType: element.investmentProductsType,
-                  jzrq: res.jzrq,
-                  lastPrice: res.dwjz,
-                  currentPrice: res.gsz,
-                  gszzl: res.gszzl,
-                  gztime: res.gztime,
+                  jzrq: fund.PDATE,
+                  lastPrice: lastPrice,
+                  currentPrice: isNaN(fund.NAV) ? null : fund.NAV,
+                  gszzl: fund.GSZZL === null ? fund.NAVCHGRT : fund.GSZZL,
+                  gztime: fund.GZTIME,
                 };
-                // if (res.PDATE != "--" && res.PDATE == res.GZTIME.substr(0, 10)) {
-                //   data.gsz = res.NAV;
-                //   data.gszzl = isNaN(res.NAVCHGRT) ? 0 : res.NAVCHGRT;
+                // if (fund.PDATE != "--" && fund.PDATE == fund.GZTIME.substr(0, 10)) {
+                //   data.gsz = fund.NAV;
+                //   data.gszzl = isNaN(fund.NAVCHGRT) ? 0 : fund.NAVCHGRT;
                 //   data.hasReplace = true;
                 // }
 
