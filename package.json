@@ -1,9 +1,8 @@
 {
-  "name": "choose-funds",
+  "name": "stock-extensions",
   "version": "1.0.0",
   "description": "A Vue.js web extension",
-  "author": "LiuRabt",
-  "license": "GPL-3.0",
+  "author": "LuFeiYa",
   "engines": {
     "node": ">=10"
   },
