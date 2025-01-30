@@ -1,7 +1,7 @@
 {
-  "author": "LiuRabt",
-  "name": "自选股票基金助手 - 实时查看股票涨跌幅",
-  "description": "自选股票基金助手，实时查看您关注的股票，助您快速获取实时数据",
+  "author": "LuFeiYo",
+  "name": "估值精灵 - 实时查看您关注的股票、基金的估值",
+  "description": "估值精灵：实时查看您关注的股票、基金的估值",
   "version": null,
   "manifest_version": 2,
   "icons": {
@@ -15,7 +15,7 @@
       "19": "icons/icon19.png",
       "38": "icons/icon38.png"
     },
-    "default_title": "自选股票基金助手",
+    "default_title": "估值精灵",
     "default_popup": "popup/popup.html"
   },
   "options_page": "options/options.html",
