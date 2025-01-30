@@ -130,7 +130,7 @@
               class="exportBtn"
               ref="configMsg"
               :href="configHref"
-              download="自选股票助手配置文件.json"
+              download="自选股票基金助手配置文件.json"
             ></a>
             <a href="javascript:;" class="uploadFile btn"
               >导入配置文件
@@ -364,7 +364,7 @@ export default {
       var tHeader = ["股票代码", "股票名称", "持有份额", "成本价"];
       var filterVal = ["code", "name", "num", "cost"];
       var data = this.formatJson(filterVal, this.dataList);
-      export_json_to_excel(tHeader, data, "自选股票助手-股票配置");
+      export_json_to_excel(tHeader, data, "自选股票基金助手-股票配置");
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map((v) => filterVal.map((j) => v[j]));
