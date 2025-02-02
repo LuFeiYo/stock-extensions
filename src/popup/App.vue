@@ -585,7 +585,7 @@ export default {
       loading: false,
       dragging: null,
       showAddSeciInput: false,
-      seciList: ["1.000001", "1.000300", "0.399001", "0.399006"],
+      seciList: ["1.000001", "1.000300", "0.899050", "0.399006"],
       allSeciList: [
         {
           value: "1.000001",
@@ -610,6 +610,10 @@ export default {
         {
           value: "0.399005",
           label: "中小板指",
+        },
+        {
+          value: "0.899050",
+          label: "北证50",
         },
         {
           value: "100.HSI",
