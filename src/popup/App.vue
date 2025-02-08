@@ -901,14 +901,35 @@ export default {
       });
     },
     indDetail(val) {
-      // this.sltIndCode = val.f13 + "." + val.f12;
       this.detailShadow = true;
       this.$refs.indDetail.init(val);
     },
     fundDetail(val) {
-      this.sltFund = val;
-      this.detailShadow = true;
-      this.$refs.fundDetail.init();
+      if (val.investmentProductsType === 'stock') {
+        var investmentProductsCode = val.fundcode;
+        if (investmentProductsCode.startsWith("000") || investmentProductsCode.startsWith("002") || investmentProductsCode.startsWith("200") || investmentProductsCode.startsWith("300")
+            || investmentProductsCode.startsWith("159")) {
+          investmentProductsCode = "0." + investmentProductsCode;
+        } else if (investmentProductsCode.length == 5) {
+          investmentProductsCode = "116." + investmentProductsCode;
+        } else {
+          investmentProductsCode = "1." + investmentProductsCode;
+        }
+        let url =
+            "https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&fields=f2,f3,f4,f12,f13,f14&secids=" +
+            investmentProductsCode +
+            "&_=" +
+            new Date().getTime();
+        this.$axios.get(url).then((res) => {
+          const stock = res.data.data.diff[0];
+          this.detailShadow = true;
+          this.$refs.indDetail.init(stock);
+        });
+      } else {
+        this.sltFund = val;
+        this.detailShadow = true;
+        this.$refs.fundDetail.init();
+      }
     },
     closeCharts() {
       this.detailShadow = false;
