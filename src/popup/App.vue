@@ -54,7 +54,7 @@
             {{ el.f4 }}&nbsp;&nbsp;{{ el.f3 }}%
           </p>
         </div>
-        <div v-if="isEdit && indFundData.length < 4" class="tab-col">
+        <div v-if="isEdit && indFundData.length < 5" class="tab-col">
           <div
               v-if="!showAddSeciInput"
               class="addSeci"
@@ -92,7 +92,7 @@
         </div>
       </div>
       <div v-if="isEdit" class="input-row">
-        <span>添加新股票:</span>
+        <span>添加新股票/基金:</span>
         <el-select v-model="investmentProductsType" placeholder="请选择">
           <el-option
               v-for="item in typeOptions"
@@ -146,6 +146,7 @@
         <table :class="tableHeight">
           <thead>
           <tr>
+            <th v-if="isEdit">类型</th>
             <th class="align-left">股票名称（{{ dataList.length }}）</th>
             <th v-if="isEdit">股票代码</th>
             <th v-if="showGSZ && !isEdit">估算净值</th>
@@ -209,15 +210,8 @@
               @dragenter="handleDragEnter($event, el, index)"
               @dragend="handleDragEnd($event, el)"
           >
-            <td
-                :class="
-                  isEdit ? 'fundName-noclick align-left' : 'fundName align-left'
-                "
-                :title="el.name"
-                @click.stop="!isEdit && fundDetail(el)"
-            >
-              <el-select v-model="el.investmentProductsType" placeholder="请选择"
-                         v-if="isEdit" size="mini" @change="changeInvestmentProductsType(el, index)">
+            <td v-if="isEdit">
+              <el-select v-model="el.investmentProductsType" placeholder="请选择" size="mini" @change="changeInvestmentProductsType(el, index)">
                 <el-option
                     v-for="item in typeOptions"
                     :key="item.value"
@@ -225,12 +219,20 @@
                     :value="item.value">
                 </el-option>
               </el-select>
+            </td>
+            <td
+                :class="
+                  isEdit ? 'fundName-noclick align-left' : 'fundName align-left'
+                "
+                :title="el.name"
+                @click.stop="!isEdit && fundDetail(el)"
+            >
               <span class="hasReplace-tip"
                     :class="{
                         'stock-color': el.investmentProductsType === 'stock',
                         'fund-color': el.investmentProductsType !== 'stock'
                       }"
-                    v-if="el.investmentProductsType">
+                    v-if="!isEdit && el.investmentProductsType">
                   {{ el.investmentProductsType === 'stock' ? '股' : '基' }}
                 </span>
               <span class="hasReplace-tip" v-if="el.hasReplace">✔</span>{{ el.name }}
@@ -1739,7 +1741,7 @@ tbody tr:hover {
 }
 
 .btn.num {
-  width: 75px;
+  width: 50px;
   padding: 3px 6px;
 }
 
