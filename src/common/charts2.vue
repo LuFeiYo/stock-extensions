@@ -15,6 +15,7 @@
         <el-radio-button label="n">一年</el-radio-button>
         <el-radio-button label="3n">三年</el-radio-button>
         <el-radio-button label="5n">五年</el-radio-button>
+        <el-radio-button label="ln">成立以来</el-radio-button>
       </el-radio-group>
     </div>
   </div>
@@ -148,14 +149,16 @@ export default {
     getData() {
       this.loading = true;
       if (this.chartType == "LJSY") {
-        let url = `https://fundmobapi.eastmoney.com/FundMApi/FundYieldDiagramNew.ashx?FCODE=${
-          this.fund.fundcode
+        let url = `https://dataapi.1234567.com.cn/dataapi/fund/FundVPageAcc?INDEXCODE=000300&CODE=${
+            this.fund.fundcode
+        }&FCODE=${
+            this.fund.fundcode
         }&RANGE=${
-          this.sltTimeRange
-        }&deviceid=Wap&plat=Wap&product=EFund&version=2.0.0&_=${new Date().getTime()}`;
+            this.sltTimeRange
+        }&deviceid=Wap&product=EFund`;
         this.$axios.get(url).then((res) => {
           this.loading = false;
-          let dataList = res.data.Datas;
+          let dataList = res.data.data;
           if (dataList) {
             this.option.legend = {
               show: true,
@@ -169,15 +172,20 @@ export default {
               {
                 type: "line",
                 name: "涨幅",
-                data: dataList.map((item) => +item.YIELD),
+                data: dataList.map((item) => +item.yield),
               },
               {
                 type: "line",
-                name: res.data.Expansion.INDEXNAME,
-                data: dataList.map((item) => +item.INDEXYIED),
+                name: res.data.expansion.aboutAcc[2].name,
+                data: dataList.map((item) => +item.indexYield),
+              },
+              {
+                type: "line",
+                name: res.data.expansion.aboutAcc[1].name,
+                data: dataList.map((item) => +item.fundTypeYield),
               },
             ];
-            this.option.xAxis.data = dataList.map((item) => item.PDATE);
+            this.option.xAxis.data = dataList.map((item) => item.pdate);
             this.myChart.setOption(this.option);
           }
         });
