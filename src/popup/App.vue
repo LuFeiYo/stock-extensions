@@ -92,7 +92,7 @@
         </div>
       </div>
       <div v-if="isEdit" class="input-row">
-        <span>添加新股票/基金:</span>
+        <span>添加股票/基金：</span>
         <el-select v-model="investmentProductsType" placeholder="请选择">
           <el-option
               v-for="item in typeOptions"
@@ -111,7 +111,7 @@
             size="mini"
             reserve-keyword
             @visible-change="selectChange"
-            placeholder="请输入股票编码，支持按名称或编码搜索"
+            placeholder="请输入代码或名称"
             :remote-method="remoteMethod"
             :loading="loading"
             style="width:300px"
@@ -131,9 +131,9 @@
         </el-select>
         <input @click="save" class="btn" type="button" value="确定"/>
       </div>
-      <p v-if="isEdit" class="tips center">
-        部分新发股票或QDII股票可以搜索到，但可能无法获取估值情况
-      </p>
+<!--      <p v-if="isEdit" class="tips center">-->
+<!--        部分新发股票或QDII股票可以搜索到，但可能无法获取估值情况-->
+<!--      </p>-->
       <div
           v-if="isGetStorage"
           v-loading="loadingList"
@@ -147,8 +147,8 @@
           <thead>
           <tr>
             <th v-if="isEdit">类型</th>
-            <th class="align-left">股票名称（{{ dataList.length }}）</th>
-            <th v-if="isEdit">股票代码</th>
+            <th class="align-left">名称（{{ dataList.length }}）</th>
+            <th v-if="isEdit">代码</th>
             <th v-if="showGSZ && !isEdit">估算净值</th>
             <th
                 style="text-align:center"
