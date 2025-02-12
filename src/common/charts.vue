@@ -441,10 +441,12 @@ export default {
     },
     getData() {
       this.loading = true;
+      console.log("this.fund", JSON.stringify(this.fund))
       let url = `https://fundmobapi.eastmoney.com/FundMApi/FundVarietieValuationDetail.ashx?FCODE=${
         this.fund.fundcode
       }&deviceid=Wap&plat=Wap&product=EFund&version=2.0.0&_=${new Date().getTime()}`;
       this.$axios.get(url).then((res) => {
+        console.log("res", res)
         this.loading = false;
         let dataList = res.data.Datas.map((item) => item.split(","));
         this.option.series[0].data = dataList.map((item) =>

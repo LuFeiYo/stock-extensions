@@ -1227,11 +1227,15 @@ export default {
 
         } else {
           let lastPrice;
+          let gszzl;
+          let currentPrice;
           let lastPriceUrl = "https://fundgz.1234567.com.cn/js/" + investmentProductsCode + ".js";
           await this.$axios
               .get(lastPriceUrl)
               .then((lastPriceUrlResponse) => {
                 lastPrice = this.handleResponse(lastPriceUrlResponse.data).dwjz;
+                gszzl = this.handleResponse(lastPriceUrlResponse.data).gszzl;
+                currentPrice = this.handleResponse(lastPriceUrlResponse.data).gsz;
               });
           let url = "https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo?pageIndex=1&pageSize=200&plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=" +
               this.userId +
@@ -1249,8 +1253,8 @@ export default {
                   investmentProductsType: element.investmentProductsType,
                   jzrq: fund.PDATE,
                   lastPrice: lastPrice,
-                  currentPrice: isNaN(fund.NAV) ? null : fund.NAV,
-                  gszzl: fund.GSZZL === null ? fund.NAVCHGRT : fund.GSZZL,
+                  currentPrice: currentPrice,
+                  gszzl: gszzl,
                   gztime: fund.GZTIME,
                 };
                 // if (fund.PDATE != "--" && fund.PDATE == fund.GZTIME.substr(0, 10)) {
