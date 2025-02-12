@@ -93,9 +93,9 @@ var isDuringDate = () => {
   var endDatePM = new Date();
 
   beginDateAM.setHours(9, 30, 0);
-  endDateAM.setHours(11, 35, 0);
+  endDateAM.setHours(12, 10, 0);
   beginDatePM.setHours(13, 0, 0);
-  endDatePM.setHours(15, 5, 0);
+  endDatePM.setHours(16, 10, 0);
   if (curDate.getDay() == "6" || curDate.getDay() == "0") {
     return false;
   } else if (curDate >= beginDateAM && curDate <= endDateAM) {
