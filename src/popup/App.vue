@@ -219,6 +219,14 @@
                     :value="item.value">
                 </el-option>
               </el-select>
+              <el-select v-model="el.isHold" placeholder="是否持有" size="mini" @change="changeIsHold(el, index)">
+                <el-option
+                    v-for="item in yesOrNoOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                </el-option>
+              </el-select>
             </td>
             <td
                 :class="
@@ -235,7 +243,10 @@
                     v-if="!isEdit && el.investmentProductsType">
                   {{ el.investmentProductsType === 'stock' ? '股' : '基' }}
                 </span>
-              <span class="hasReplace-tip" v-if="el.hasReplace">✔</span>{{ el.name }}
+              <span class="hasReplace-tip" v-if="el.hasReplace">✔</span>
+              <span :style="{ color: el.isHold ? 'purple' : 'black' }">
+                {{ el.name }}
+              </span>
             </td>
             <td v-if="isEdit">{{ el.fundcode }}</td>
             <td v-if="showGSZ && !isEdit">{{ el.currentPrice }}</td>
@@ -551,6 +562,7 @@ export default {
       isEdit: false,
       fundcode: "",
       investmentProductsType: "",
+      isHold: false,
       isAdd: false,
       indFundData: [],
       isLiveUpdate: false,
@@ -666,6 +678,13 @@ export default {
       }, {
         value: 'fund',
         label: '基金'
+      }],
+      yesOrNoOptions: [{
+        value: true,
+        label: '是'
+      }, {
+        value: false,
+        label: '否'
       }],
     };
   },
@@ -1159,6 +1178,7 @@ export default {
                     fundcode: response?.data.code,
                     name: response?.data.name,
                     investmentProductsType: element.investmentProductsType,
+                    isHold: element.isHold,
                     // 上一交易日 日期
                     jzrq: response?.data.klines[0].split(",")[0],
                     // 上一交易日 单位净值
@@ -1177,6 +1197,7 @@ export default {
                     fundcode: response?.data.code,
                     name: response?.data.name,
                     investmentProductsType: element.investmentProductsType,
+                    isHold: element.isHold,
                     // 上一交易日 日期
                     jzrq: response?.data.klines[1].split(",")[0],
                     // 上一交易日 单位净值
@@ -1251,6 +1272,7 @@ export default {
                   fundcode: fund.FCODE,
                   name: fund.SHORTNAME,
                   investmentProductsType: element.investmentProductsType,
+                  isHold: element.isHold,
                   jzrq: fund.PDATE,
                   lastPrice: lastPrice,
                   currentPrice: currentPrice,
@@ -1328,6 +1350,23 @@ export default {
         for (let fund of this.fundListM) {
           if (fund.code == item.fundcode) {
             fund.investmentProductsType = item.investmentProductsType;
+          }
+        }
+        chrome.storage.sync.set(
+            {
+              fundListM: this.fundListM,
+            },
+            () => {
+              chrome.runtime.sendMessage({type: "refresh"});
+            }
+        );
+      });
+    },
+    changeIsHold(item, ind) {
+      debounce(() => {
+        for (let fund of this.fundListM) {
+          if (fund.code == item.fundcode) {
+            fund.isHold = item.isHold;
           }
         }
         chrome.storage.sync.set(
@@ -1640,7 +1679,7 @@ export default {
 }
 
 .more-width {
-  min-width: 785px;
+  min-width: 900px;
 }
 
 .changelog-container {
