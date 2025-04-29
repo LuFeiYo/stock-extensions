@@ -11,8 +11,9 @@
         class="main-echarts"
         ref="mainCharts"
       ></div>
-
       <div class="tab-row">
+        <StockKLine :visible="showModal" @update:visible="showModal = $event" :stockCode="stockCode" ref="stockKLine" />
+        <input class="btn" type="button" value="查看k线图" @click="showChartModal" />
         <input class="btn" type="button" value="返回列表" @click="close" />
       </div>
     </div>
@@ -24,6 +25,7 @@ let echarts = require("echarts/lib/echarts");
 
 import "./js/customed.js";
 import "./js/dark.js";
+import StockKLine from './StockKLine.vue';
 
 require("echarts/lib/chart/line");
 
@@ -32,6 +34,9 @@ require("echarts/lib/component/legend");
 
 export default {
   name: "indDetail",
+  components: {
+    StockKLine,
+  },
   props: {
     mini: {
       type: Boolean,
@@ -58,6 +63,8 @@ export default {
       dataList: [],
       timeData: [],
       isHK: false,
+      showModal: false,
+      stockCode: ""
     };
   },
   watch: {},
@@ -360,7 +367,11 @@ export default {
       };
       this.getData();
     },
-
+    showChartModal() {
+      this.stockCode = this.code
+      this.showModal = true;
+      this.visible = true;
+    },
     close() {
       this.boxShadow = false;
       this.$emit("close", false);
